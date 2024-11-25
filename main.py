@@ -10,6 +10,7 @@ tech_file_path = 'TECH.csv'
 avail_file_path = 'AVAIL.csv'
 life_expectancy_file_path = 'LIFEEXPECT.csv'
 
+
 # Load the datasets
 tech_df = pd.read_csv(tech_file_path)
 avail_df = pd.read_csv(avail_file_path)
@@ -74,26 +75,39 @@ for tech in technologies:
         combined_df[tech] = 0
 
 # Calculate future life expectancy based on selected technologies
-combined_df['Future_Life_Expectancy'] = combined_df['Life Expectancy']
+# Define future projection years (e.g., from 2023 to 2033)
+last_year = combined_df['Year'].max()
+future_years = range(last_year + 1, last_year + 11)
 
-# Adjust future life expectancy only for future years if technologies are selected
+# Create a new DataFrame for future projections
+future_df = pd.DataFrame()
+for country in combined_df['Country'].unique():
+    country_data = combined_df[combined_df['Country'] == country].iloc[-1]
+    for year in future_years:
+        future_row = country_data.copy()
+        future_row['Year'] = year
+        future_df = future_df.append(future_row, ignore_index=True)
+
+# Adjust future life expectancy based on selected technologies
 if selected_techs:
-    future_years = combined_df['Year'] > combined_df['Year'].max() - 10  # Assuming last 10 years are future projections
     for tech in selected_techs:
-        combined_df.loc[future_years, 'Future_Life_Expectancy'] += combined_df.loc[future_years, tech] * combined_df.loc[future_years, 'Impact_Weights'].apply(lambda x: x.get(tech, 0))
+        future_df['Life Expectancy'] += future_df[tech] * future_df['Impact_Weights'].apply(lambda x: x.get(tech, 0))
+
+# Combine historical and future data
+combined_projection_df = pd.concat([combined_df, future_df], ignore_index=True)
 
 # Create an interactive graph to visualize the future projections
 st.write("### Interactive Population Projection Graph")
-country_selection = st.selectbox("Select a Country", combined_df['Country'].unique())
-filtered_df = combined_df[combined_df['Country'] == country_selection]
+country_selection = st.selectbox("Select a Country", combined_projection_df['Country'].unique())
+filtered_df = combined_projection_df[combined_projection_df['Country'] == country_selection]
 
-# Plot only future life expectancy projections using Plotly
+# Plot life expectancy projections using Plotly
 fig = px.line(
     filtered_df, 
     x='Year', 
-    y='Future_Life_Expectancy',
-    labels={'Future_Life_Expectancy': 'Life Expectancy', 'Year': 'Year'},
-    title=f'Future Life Expectancy Projections for {country_selection}'
+    y='Life Expectancy',
+    labels={'Life Expectancy': 'Life Expectancy', 'Year': 'Year'},
+    title=f'Life Expectancy Projections for {country_selection}'
 )
 fig.update_traces(mode='lines+markers')
 fig.update_layout(legend_title_text='Projection Type', yaxis_title='Life Expectancy (Years)')
@@ -101,4 +115,4 @@ fig.update_layout(legend_title_text='Projection Type', yaxis_title='Life Expecta
 # Display the updated graph
 st.plotly_chart(fig)
 
-# Note: The graph will now show only one line representing the future life expectancy. Changes occur only if technologies are selected, affecting only future years.
+# Note: The graph will now show the historical life expectancy values along with future projections, which are modified based on selected technologies.
