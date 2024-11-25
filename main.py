@@ -71,13 +71,9 @@ else:
 
         if row['Year'] > 2021:
             for tech in selected_techs:
-                if tech in tech_data_usa.columns:
-                    # Use adoption level per year if available, otherwise default to 0
-                    adoption_level = tech_data_usa.loc[tech_data_usa['TIME_PERIOD'] == row['Year'], tech].values
-                    adoption_level = adoption_level[0] if len(adoption_level) > 0 else 0
-                    impact_score = tech_impact_scores.get(tech, 0.0)
-                    # Adjust life expectancy based on adoption level and impact score
-                    dynamic_life_expectancy += adoption_level * impact_score * dynamic_life_expectancy
+                impact_score = tech_impact_scores.get(tech, 0.0)
+                # Adjust life expectancy based on a fixed adoption level of 1 for simplicity
+                dynamic_life_expectancy += impact_score * dynamic_life_expectancy
 
         return dynamic_life_expectancy
 
