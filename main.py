@@ -33,14 +33,14 @@ for tech in technologies:
 
 # Step 2a: Define Impact Scores
 tech_impact_scores = {
-    'CRISPR_Cas9': 1.05,
-    'CAR_T_Therapy': 1.03,
-    'Genetic_Screening': 1.02,
-    'mRNA_Vaccines': 1.04,
-    '3D_Printed_Prosthetics': 1.01,
-    'BCI_Neurorehabilitation': 1.02,
-    'Gene_Therapy_Cystic_Fibrosis': 1.03,
-    'Liquid_Biopsies_Cancer': 1.02
+    'CRISPR_Cas9': 0.05,
+    'CAR_T_Therapy': 0.03,
+    'Genetic_Screening': 0.02,
+    'mRNA_Vaccines': 0.04,
+    '3D_Printed_Prosthetics': 0.01,
+    'BCI_Neurorehabilitation': 0.02,
+    'Gene_Therapy_Cystic_Fibrosis': 0.03,
+    'Liquid_Biopsies_Cancer': 0.02
 }
 
 # Step 3: Setting up Streamlit for Interactive Visualization
@@ -72,10 +72,12 @@ else:
         if row['Year'] > 2021:
             for tech in selected_techs:
                 if tech in tech_data_usa.columns:
-                    adoption_level = tech_data_usa[tech].iloc[0] if not tech_data_usa[tech].empty else 0
-                    impact_score = tech_impact_scores.get(tech, 1.0)
-                    # Assuming adoption_level ranges from 0 to 1, use it as a multiplier for impact
-                    dynamic_life_expectancy *= impact_score ** adoption_level
+                    # Use adoption level per year if available, otherwise default to 0
+                    adoption_level = tech_data_usa.loc[tech_data_usa['TIME_PERIOD'] == row['Year'], tech].values
+                    adoption_level = adoption_level[0] if len(adoption_level) > 0 else 0
+                    impact_score = tech_impact_scores.get(tech, 0.0)
+                    # Adjust life expectancy based on adoption level and impact score
+                    dynamic_life_expectancy += adoption_level * impact_score * dynamic_life_expectancy
 
         return dynamic_life_expectancy
 
