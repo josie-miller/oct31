@@ -73,33 +73,27 @@ for tech in technologies:
     else:
         combined_df[tech] = 0
 
-# Calculate updated HTI based on selected technologies
-st.write("### Updated Healthcare Technology Index (HTI)")
-combined_df['Updated_HTI'] = combined_df['HTI']
-for tech in selected_techs:
-    combined_df['Updated_HTI'] += combined_df[tech] * combined_df['Impact_Weights'].apply(lambda x: x.get(tech, 0))
-
-# Display future life expectancy projections based on selected technologies
-st.write("### Future Life Expectancy Projections")
+# Calculate future life expectancy based on selected technologies
 combined_df['Future_Life_Expectancy'] = combined_df['Life Expectancy']
 
-# Adjust future life expectancy only if technologies are selected
+# Adjust future life expectancy only for future years if technologies are selected
 if selected_techs:
+    future_years = combined_df['Year'] > combined_df['Year'].max() - 10  # Assuming last 10 years are future projections
     for tech in selected_techs:
-        combined_df['Future_Life_Expectancy'] += combined_df[tech] * combined_df['Impact_Weights'].apply(lambda x: x.get(tech, 0))
+        combined_df.loc[future_years, 'Future_Life_Expectancy'] += combined_df.loc[future_years, tech] * combined_df.loc[future_years, 'Impact_Weights'].apply(lambda x: x.get(tech, 0))
 
 # Create an interactive graph to visualize the future projections
 st.write("### Interactive Population Projection Graph")
 country_selection = st.selectbox("Select a Country", combined_df['Country'].unique())
 filtered_df = combined_df[combined_df['Country'] == country_selection]
 
-# Plot life expectancy projections using Plotly
+# Plot only future life expectancy projections using Plotly
 fig = px.line(
     filtered_df, 
     x='Year', 
-    y=['Life Expectancy', 'Future_Life_Expectancy'],
-    labels={'value': 'Life Expectancy', 'Year': 'Year'},
-    title=f'Life Expectancy Projections for {country_selection}'
+    y='Future_Life_Expectancy',
+    labels={'Future_Life_Expectancy': 'Life Expectancy', 'Year': 'Year'},
+    title=f'Future Life Expectancy Projections for {country_selection}'
 )
 fig.update_traces(mode='lines+markers')
 fig.update_layout(legend_title_text='Projection Type', yaxis_title='Life Expectancy (Years)')
@@ -107,4 +101,4 @@ fig.update_layout(legend_title_text='Projection Type', yaxis_title='Life Expecta
 # Display the updated graph
 st.plotly_chart(fig)
 
-# Note: The graph will only show changes in future projections if technologies are selected. If no technologies are selected, the graph remains unchanged at the original life expectancy level.
+# Note: The graph will now show only one line representing the future life expectancy. Changes occur only if technologies are selected, affecting only future years.
