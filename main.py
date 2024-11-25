@@ -80,13 +80,15 @@ last_year = combined_df['Year'].max()
 future_years = range(last_year + 1, last_year + 11)
 
 # Create a new DataFrame for future projections
-future_df = pd.DataFrame()
+future_rows = []
 for country in combined_df['Country'].unique():
     country_data = combined_df[combined_df['Country'] == country].iloc[-1]
     for year in future_years:
         future_row = country_data.copy()
         future_row['Year'] = year
-        future_df = future_df.append(future_row, ignore_index=True)
+        future_rows.append(future_row)
+
+future_df = pd.DataFrame(future_rows)
 
 # Adjust future life expectancy based on selected technologies
 if selected_techs:
