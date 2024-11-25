@@ -56,8 +56,12 @@ country_data = life_expect_usa.copy()
 
 # Step 3b: Update Life Expectancy Based on Selected Technologies
 # Only apply changes for years after 2021
+
 def calculate_dynamic_life_expectancy(row, selected_techs):
-    dynamic_life_expectancy = row['Life Expectancy']
+    try:
+        dynamic_life_expectancy = row['Life Expectancy']
+    except KeyError:
+        dynamic_life_expectancy = row['Life_Expectancy']  # Handle different column naming
     
     if row['Year'] > 2021:
         for tech in selected_techs:
@@ -78,7 +82,7 @@ fig = go.Figure()
 
 fig.add_trace(go.Scatter(
     x=country_data['Year'],
-    y=country_data['Life Expectancy'],
+    y=country_data['Life Expectancy'] if 'Life Expectancy' in country_data.columns else country_data['Life_Expectancy'],
     mode='lines',
     name='Base Life Expectancy'
 ))
