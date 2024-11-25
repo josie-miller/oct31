@@ -58,7 +58,7 @@ impact_types = {
 # Step 3: Setting up Streamlit for Interactive Visualization
 
 # Step 3a: Streamlit App Layout
-st.title("USA - Healthcare Technology on Population Growth")
+st.title("USA - Healthcare Technology on Life Expectancy")
 
 # Technology selection
 st.write("### Select Technologies to Analyze")
