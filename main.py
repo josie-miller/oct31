@@ -58,10 +58,7 @@ impact_types = {
 # Step 3: Setting up Streamlit for Interactive Visualization
 
 # Step 3a: Streamlit App Layout
-st.title("Healthcare Technology Impact on Population and Life Expectancy (USA Only)")
-
-st.write("## Goals of This Analysis")
-st.write("The goal of this application is to demonstrate how different healthcare technologies can influence life expectancy in the USA. We analyze the potential impacts of eight significant advancements in healthcare technologies on population health over time. By selecting different technologies and impact types, you can see how they might change future life expectancy trends.")
+st.title("USA - Healthcare Technology on Population Growth")
 
 # Technology selection
 st.write("### Select Technologies to Analyze")
@@ -112,7 +109,7 @@ else:
 
     # Step 3c: Plotting Life Expectancy Over Time
     st.write("### Life Expectancy Over Time")
-    st.write("This graph shows the base life expectancy over time compared to the adjusted life expectancy after applying the effects of selected technologies.")
+    st.write("This graph shows the base life expectancy over time compared to the adjusted life expectancy after applying the effects of selected techs.")
     fig = go.Figure()
 
     fig.add_trace(go.Scatter(
@@ -144,5 +141,3 @@ else:
     st.write("- **Step Increase**: Life expectancy increases in discrete steps, simulating sudden improvements due to technological adoption.")
     st.write("- **Random Fluctuation**: Introduces randomness, reflecting uncertainty or variability in the impact of technology.")
     st.write("- **Delayed Effect**: The impact of the technology is delayed, simulating scenarios where benefits take time to materialize.")
-
-    st.write("This tool allows you to explore how healthcare advancements might shape the future health of the population. Use the different settings to visualize and understand the potential impacts.")
