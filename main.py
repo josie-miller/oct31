@@ -64,8 +64,6 @@ for country in combined_df['Country'].unique():
     for year in future_years:
         future_row = country_data.copy()
         future_row['Year'] = year
-        for tech in technologies:
-            future_row[tech] = 0  # Initially set future technologies to 0
         future_rows.append(future_row)
 
 future_df = pd.DataFrame(future_rows)
@@ -87,7 +85,8 @@ if selected_techs:
         future_df['Life Expectancy'] += future_df['Impact_Weights'].apply(lambda x: x.get(tech, 0))
 
 # Combine historical and future data
-combined_projection_df = pd.concat([combined_df, future_df], ignore_index=True)
+historical_df = combined_df[combined_df['Year'] <= last_year]
+combined_projection_df = pd.concat([historical_df, future_df], ignore_index=True)
 
 # Step 5: Visualization
 st.write("### Interactive Population Projection Graph")
