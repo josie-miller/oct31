@@ -54,11 +54,14 @@ selected_techs = st.multiselect('Select Technologies:', technologies)
 # Filter data for the selected country (USA)
 country_data = life_expect_usa.copy()
 
+# Ensure column names are consistent
+life_expectancy_column = 'Life Expectancy' if 'Life Expectancy' in country_data.columns else 'Life_Expectancy'
+
 # Step 3b: Update Life Expectancy Based on Selected Technologies
 # Only apply changes for years after 2021
 
 def calculate_dynamic_life_expectancy(row, selected_techs):
-    dynamic_life_expectancy = row.get('Life Expectancy') or row.get('Life_Expectancy')
+    dynamic_life_expectancy = row[life_expectancy_column]
     
     if pd.isna(dynamic_life_expectancy):
         return None
@@ -85,7 +88,7 @@ fig = go.Figure()
 
 fig.add_trace(go.Scatter(
     x=country_data['Year'],
-    y=country_data['Life Expectancy'] if 'Life Expectancy' in country_data.columns else country_data['Life_Expectancy'],
+    y=country_data[life_expectancy_column],
     mode='lines',
     name='Base Life Expectancy'
 ))
