@@ -58,11 +58,11 @@ country_data = life_expect_usa.copy()
 # Only apply changes for years after 2021
 
 def calculate_dynamic_life_expectancy(row, selected_techs):
-    try:
-        dynamic_life_expectancy = row['Life Expectancy']
-    except KeyError:
-        dynamic_life_expectancy = row['Life_Expectancy']  # Handle different column naming
+    dynamic_life_expectancy = row.get('Life Expectancy') or row.get('Life_Expectancy')
     
+    if pd.isna(dynamic_life_expectancy):
+        return None
+
     if row['Year'] > 2021:
         for tech in selected_techs:
             if tech in tech_data_usa.columns:
@@ -76,6 +76,9 @@ def calculate_dynamic_life_expectancy(row, selected_techs):
 country_data['Dynamic_Life_Expectancy'] = country_data.apply(
     lambda row: calculate_dynamic_life_expectancy(row, selected_techs), axis=1
 )
+
+# Drop rows with NaN values in 'Dynamic_Life_Expectancy'
+country_data.dropna(subset=['Dynamic_Life_Expectancy'], inplace=True)
 
 # Step 3c: Plotting Life Expectancy Over Time
 fig = go.Figure()
