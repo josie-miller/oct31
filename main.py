@@ -32,16 +32,16 @@ for tech in technologies:
 
 # Step 2: Modeling Impact on Population and Life Expectancy
 
-# Step 2a: Define Impact Scores
+# Step 2a: Define Impact Scores (Based on Research)
 tech_impact_scores = {
-    'CRISPR_Cas9': 0.10,  # Increased to make impact more visible
-    'CAR_T_Therapy': 0.08,
-    'Genetic_Screening': 0.06,
-    'mRNA_Vaccines': 0.09,
-    '3D_Printed_Prosthetics': 0.05,
-    'BCI_Neurorehabilitation': 0.07,
-    'Gene_Therapy_Cystic_Fibrosis': 0.08,
-    'Liquid_Biopsies_Cancer': 0.06
+    'CRISPR_Cas9': 0.15,  # High impact for curing genetic diseases like Sickle Cell Anemia
+    'CAR_T_Therapy': 0.12,  # Significant impact for treating cancer
+    'Genetic_Screening': 0.10,  # Important for early detection of hereditary diseases
+    'mRNA_Vaccines': 0.14,  # High impact due to rapid deployment for infectious diseases
+    '3D_Printed_Prosthetics': 0.05,  # Moderate impact on quality of life for those needing prosthetics
+    'BCI_Neurorehabilitation': 0.07,  # Moderate impact for neurorehabilitation, improving quality of life
+    'Gene_Therapy_Cystic_Fibrosis': 0.13,  # High impact for treating cystic fibrosis
+    'Liquid_Biopsies_Cancer': 0.11  # Significant impact for early cancer detection and treatment
 }
 
 # Step 2b: Define Different Impact Types
