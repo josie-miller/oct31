@@ -55,14 +55,16 @@ selected_techs = st.multiselect('Select Technologies:', technologies)
 country_data = life_expect_usa.copy()
 
 # Step 3b: Update Life Expectancy Based on Selected Technologies
+# Only apply changes for years after 2021
 def calculate_dynamic_life_expectancy(row, selected_techs):
     dynamic_life_expectancy = row['Life Expectancy']
     
-    for tech in selected_techs:
-        if tech in tech_data_usa.columns:
-            adoption_level = tech_data_usa[tech].iloc[0]  # Use the first available value for simplicity
-            impact_score = tech_impact_scores.get(tech, 1.0)
-            dynamic_life_expectancy *= (1 + adoption_level * (impact_score - 1))
+    if row['Year'] > 2021:
+        for tech in selected_techs:
+            if tech in tech_data_usa.columns:
+                adoption_level = tech_data_usa[tech].iloc[0]  # Use the first available value for simplicity
+                impact_score = tech_impact_scores.get(tech, 1.0)
+                dynamic_life_expectancy *= (1 + adoption_level * (impact_score - 1))
 
     return dynamic_life_expectancy
 
@@ -97,4 +99,4 @@ fig.update_layout(
 
 st.plotly_chart(fig)
 
-st.write("This graph shows the impact of healthcare technologies on life expectancy over time for the USA. Use the checkboxes to see how different technologies could potentially affect the population health in the future.")
+st.write("This graph shows the impact of healthcare technologies on life expectancy over time for the USA. Use the checkboxes to see how different technologies could potentially affect the population health in the future, starting from 2022.")
