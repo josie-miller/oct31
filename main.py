@@ -1,76 +1,77 @@
-import streamlit as st
+# Import necessary libraries
 import pandas as pd
 import numpy as np
-from scipy.optimize import curve_fit
-import plotly.graph_objects as go
+import streamlit as st
 
-data_path_usa = 'populationUSA.csv'
-population_data_usa = pd.read_csv(data_path_usa)
-population_data_usa['Year'] = pd.to_numeric(population_data_usa['Year'], errors='coerce')
-population_data_usa = population_data_usa[['Year', 'Population']].dropna()
+# Step 1: Data Preparation
+# Load the provided CSV files
+tech_file_path = 'TECH.csv'
+avail_file_path = 'AVAIL.csv'
+life_expectancy_file_path = 'LIFEEXPECT.csv'
 
-period_1_end_usa = 1600
-period_2_end_usa = 1900
-period_3_end_usa = 2023
+# Load the datasets
+tech_df = pd.read_csv(tech_file_path)
+avail_df = pd.read_csv(avail_file_path)
+life_expectancy_df = pd.read_csv(life_expectancy_file_path)
 
-data_period_1_usa = population_data_usa[population_data_usa['Year'] <= period_1_end_usa]
-data_period_2_usa = population_data_usa[(population_data_usa['Year'] > period_1_end_usa) & (population_data_usa['Year'] <= period_2_end_usa)]
-data_period_3_usa = population_data_usa[(population_data_usa['Year'] > period_2_end_usa) & (population_data_usa['Year'] <= period_3_end_usa)]
+# Drop duplicate rows if any exist
+tech_df = tech_df.drop_duplicates()
+avail_df = avail_df.drop_duplicates()
 
-years_1_usa, pop_1_usa = data_period_1_usa['Year'].values, data_period_1_usa['Population'].values
-years_2_usa, pop_2_usa = data_period_2_usa['Year'].values, data_period_2_usa['Population'].values
-years_3_usa, pop_3_usa = data_period_3_usa['Year'].values, data_period_3_usa['Population'].values
+# Rename columns in both datasets to make them consistent
+tech_df.rename(columns={'MEDICAL_TECH': 'MEASURE', 'Medical technology': 'MEDICAL_TECH'}, inplace=True)
+avail_df.rename(columns={'Medical technology': 'MEDICAL_TECH'}, inplace=True)
 
-P0_period_1 = 233969    
-P0_period_2 = 778503
-P0_period_3 = 74829905
+# Merge the datasets on common columns
+merged_df = pd.merge(tech_df, avail_df, on=['REF_AREA', 'Reference area', 'MEASURE', 'MEDICAL_TECH', 'TIME_PERIOD', 'OBS_VALUE'], how='outer')
 
-def exponential_model_period1(t, r, P0):
-    return P0 * np.exp(r * (t - years_1_usa[0]))
+# Normalizing the 'OBS_VALUE' column to a range of 0 to 1
+# First, calculate the min and max values of OBS_VALUE
+min_value = merged_df['OBS_VALUE'].min()
+max_value = merged_df['OBS_VALUE'].max()
 
-def logistic_model(t, r, K, N0, t0):
-    return K / (1 + ((K - N0) / N0) * np.exp(-r * (t - t0)))
+# Create the Healthcare Technology Index (HTI) by normalizing OBS_VALUE
+merged_df['HTI'] = (merged_df['OBS_VALUE'] - min_value) / (max_value - min_value)
 
-params_exp1_usa, _ = curve_fit(lambda t, r: exponential_model_period1(t, r, P0_period_1), years_1_usa, pop_1_usa, p0=[0.00001])
-r_exp1_usa = params_exp1_usa[0]
+# Rename columns in the merged HTI dataset for consistency with life expectancy dataset
+merged_df.rename(columns={'REF_AREA': 'Code', 'Reference area': 'Country', 'TIME_PERIOD': 'Year'}, inplace=True)
 
-params_log2_usa, _ = curve_fit(lambda t, r, K: logistic_model(t, r, K, P0_period_2, years_2_usa[0]), years_2_usa, pop_2_usa, p0=[0.001, 5e8])
-r_log2_usa, K_log2_usa = params_log2_usa
+# Merge the HTI dataset with the life expectancy dataset on 'Country', 'Code', and 'Year'
+combined_df = pd.merge(merged_df, life_expectancy_df, on=['Country', 'Code', 'Year'], how='inner')
 
-params_log3_usa, _ = curve_fit(lambda t, r, K: logistic_model(t, r, K, P0_period_3, years_3_usa[0]), years_3_usa, pop_3_usa, p0=[0.02, 4e9])
-r_log3_usa, K_log3_usa = params_log3_usa
+# Step 2: Quantify Individual Impact
+# Define individual impact scores for each of the eight healthcare technologies based on life expectancy and quality of healthcare
+# Add columns for the selected technologies with initial adoption values set to 0 (not adopted)
+technologies = ['CRISPR_Cas9', 'CAR_T_Therapy', 'Genetic_Screening', 'mRNA_Vaccines', '3D_Printed_Prosthetics', 'BCI_Neurorehabilitation', 'Gene_Therapy_Cystic_Fibrosis', 'Liquid_Biopsies_Cancer']
+for tech in technologies:
+    combined_df[tech] = 0
 
-def combined_model_usa(years):
-    pop_combined = []
-    for year in years:
-        if year <= period_1_end_usa:
-            pop_combined.append(exponential_model_period1(year, r_exp1_usa, P0_period_1))
-        elif period_1_end_usa < year <= period_2_end_usa:
-            pop_combined.append(logistic_model(year, r_log2_usa, K_log2_usa, P0_period_2, years_2_usa[0]))
+# Define a function to assign impact weights based on HTI and healthcare infrastructure
+def assign_impact_weights(row):
+    weights = {}
+    base_weight = 0.1  # Base impact weight for all technologies
+    for tech in technologies:
+        if row[tech] == 1:  # If the technology is adopted
+            weights[tech] = base_weight + (row['HTI'] * 0.5)  # Increase weight based on HTI level
         else:
-            pop_combined.append(logistic_model(year, r_log3_usa, K_log3_usa, P0_period_3, years_3_usa[0]))
-    return np.array(pop_combined)
+            weights[tech] = 0
+    return weights
 
-st.title("U.S. Population Projection Model")
+# Apply the function to calculate the impact weights for each country in the dataset
+combined_df['Impact_Weights'] = combined_df.apply(assign_impact_weights, axis=1)
 
-future_years_usa = np.arange(-10000, 3001)
-future_years_selected = st.slider("Select future years range for projection", min_value=-10000, max_value=3000, value=(1900, 3000))
-future_years_filtered = future_years_usa[(future_years_usa >= future_years_selected[0]) & (future_years_usa <= future_years_selected[1])]
+# Display the dataset with impact weights using Streamlit
+st.title('Healthcare Technology Impact Analysis')
+st.write("### Merged Dataset with Healthcare Technology Impact Weights")
+st.dataframe(combined_df.head())
 
-fig = go.Figure()
+# Displaying the available technologies and initial adoption values
+st.write("### Available Healthcare Technologies")
+for tech in technologies:
+    combined_df[tech] = st.checkbox(f"Adopt {tech}", value=False)
 
-fig.add_trace(go.Scatter(x=population_data_usa['Year'], y=population_data_usa['Population'], mode='markers', name='U.S. Historical Data', marker=dict(color='blue')))
-
-predicted_population = combined_model_usa(future_years_filtered)
-fig.add_trace(go.Scatter(x=future_years_filtered, y=predicted_population, mode='lines', name='Projected Population Model', line=dict(color='teal')))
-
-fig.add_hline(y=K_log3_usa, line_dash="dash", line_color="red", annotation_text=f'Carrying Capacity (Modern): {K_log3_usa:.2e}', annotation_position="bottom left")
-
-fig.update_layout(
-    title="Combined Population Model for the United States (Pre-Colonial to Future Projections)",
-    xaxis_title="Year",
-    yaxis_title="Population",
-    legend_title="Legend"
-)
-
-st.plotly_chart(fig)
+# Calculate updated HTI based on selected technologies
+st.write("### Updated Healthcare Technology Index (HTI)")
+selected_techs = [tech for tech in technologies if combined_df[tech].any()]
+combined_df['Updated_HTI'] = combined_df['HTI'] + sum([combined_df[tech] * combined_df['Impact_Weights'].apply(lambda x: x.get(tech, 0)) for tech in selected_techs])
+st.dataframe(combined_df[['Country', 'Year', 'HTI', 'Updated_HTI']].head())
