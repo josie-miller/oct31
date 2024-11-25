@@ -55,58 +55,61 @@ selected_techs = st.multiselect('Select Technologies:', technologies)
 country_data = life_expect_usa.copy()
 
 # Ensure column names are consistent
-life_expectancy_column = 'Life Expectancy' if 'Life Expectancy' in country_data.columns else 'Life_Expectancy'
+life_expectancy_column = next((col for col in ['Life Expectancy', 'Life_Expectancy'] if col in country_data.columns), None)
 
-# Step 3b: Update Life Expectancy Based on Selected Technologies
-# Only apply changes for years after 2021
+if life_expectancy_column is None:
+    st.error("Life expectancy column not found in the dataset.")
+else:
+    # Step 3b: Update Life Expectancy Based on Selected Technologies
+    # Only apply changes for years after 2021
 
-def calculate_dynamic_life_expectancy(row, selected_techs):
-    dynamic_life_expectancy = row[life_expectancy_column]
-    
-    if pd.isna(dynamic_life_expectancy):
-        return None
+    def calculate_dynamic_life_expectancy(row, selected_techs):
+        dynamic_life_expectancy = row[life_expectancy_column]
+        
+        if pd.isna(dynamic_life_expectancy):
+            return None
 
-    if row['Year'] > 2021:
-        for tech in selected_techs:
-            if tech in tech_data_usa.columns:
-                adoption_level = tech_data_usa[tech].iloc[0]  # Use the first available value for simplicity
-                impact_score = tech_impact_scores.get(tech, 1.0)
-                dynamic_life_expectancy *= (1 + adoption_level * (impact_score - 1))
+        if row['Year'] > 2021:
+            for tech in selected_techs:
+                if tech in tech_data_usa.columns:
+                    adoption_level = tech_data_usa[tech].iloc[0] if not tech_data_usa[tech].empty else 0
+                    impact_score = tech_impact_scores.get(tech, 1.0)
+                    dynamic_life_expectancy *= (1 + adoption_level * (impact_score - 1))
 
-    return dynamic_life_expectancy
+        return dynamic_life_expectancy
 
-# Calculate the dynamic life expectancy
-country_data['Dynamic_Life_Expectancy'] = country_data.apply(
-    lambda row: calculate_dynamic_life_expectancy(row, selected_techs), axis=1
-)
+    # Calculate the dynamic life expectancy
+    country_data['Dynamic_Life_Expectancy'] = country_data.apply(
+        lambda row: calculate_dynamic_life_expectancy(row, selected_techs), axis=1
+    )
 
-# Drop rows with NaN values in 'Dynamic_Life_Expectancy'
-country_data.dropna(subset=['Dynamic_Life_Expectancy'], inplace=True)
+    # Drop rows with NaN values in 'Dynamic_Life_Expectancy'
+    country_data.dropna(subset=['Dynamic_Life_Expectancy'], inplace=True)
 
-# Step 3c: Plotting Life Expectancy Over Time
-fig = go.Figure()
+    # Step 3c: Plotting Life Expectancy Over Time
+    fig = go.Figure()
 
-fig.add_trace(go.Scatter(
-    x=country_data['Year'],
-    y=country_data[life_expectancy_column],
-    mode='lines',
-    name='Base Life Expectancy'
-))
+    fig.add_trace(go.Scatter(
+        x=country_data['Year'],
+        y=country_data[life_expectancy_column],
+        mode='lines',
+        name='Base Life Expectancy'
+    ))
 
-fig.add_trace(go.Scatter(
-    x=country_data['Year'],
-    y=country_data['Dynamic_Life_Expectancy'],
-    mode='lines+markers',
-    name='Adjusted Life Expectancy'
-))
+    fig.add_trace(go.Scatter(
+        x=country_data['Year'],
+        y=country_data['Dynamic_Life_Expectancy'],
+        mode='lines+markers',
+        name='Adjusted Life Expectancy'
+    ))
 
-fig.update_layout(
-    title="Life Expectancy Over Time for USA",
-    xaxis_title='Year',
-    yaxis_title='Life Expectancy',
-    template='plotly_white'
-)
+    fig.update_layout(
+        title="Life Expectancy Over Time for USA",
+        xaxis_title='Year',
+        yaxis_title='Life Expectancy',
+        template='plotly_white'
+    )
 
-st.plotly_chart(fig)
+    st.plotly_chart(fig)
 
-st.write("This graph shows the impact of healthcare technologies on life expectancy over time for the USA. Use the checkboxes to see how different technologies could potentially affect the population health in the future, starting from 2022.")
+    st.write("This graph shows the impact of healthcare technologies on life expectancy over time for the USA. Use the checkboxes to see how different technologies could potentially affect the population health in the future, starting from 2022.")
