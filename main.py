@@ -74,7 +74,8 @@ else:
                 if tech in tech_data_usa.columns:
                     adoption_level = tech_data_usa[tech].iloc[0] if not tech_data_usa[tech].empty else 0
                     impact_score = tech_impact_scores.get(tech, 1.0)
-                    dynamic_life_expectancy *= (1 + adoption_level * (impact_score - 1))
+                    # Assuming adoption_level ranges from 0 to 1, use it as a multiplier for impact
+                    dynamic_life_expectancy *= impact_score ** adoption_level
 
         return dynamic_life_expectancy
 
