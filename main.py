@@ -1,6 +1,7 @@
 import pandas as pd
 import streamlit as st
 import plotly.graph_objs as go
+import numpy as np
 
 # Step 1: Load and Prepare Data
 
@@ -43,6 +44,15 @@ tech_impact_scores = {
     'Liquid_Biopsies_Cancer': 0.06
 }
 
+# Step 2b: Define Different Impact Types
+impact_types = {
+    'Incremental': lambda life_expectancy, impact_score: life_expectancy + impact_score * life_expectancy,
+    'Exponential': lambda life_expectancy, impact_score: life_expectancy * (1 + impact_score),
+    'Step Increase': lambda life_expectancy, impact_score, step=2: life_expectancy + (impact_score * step),
+    'Random Fluctuation': lambda life_expectancy, impact_score: life_expectancy * (1 + impact_score * np.random.uniform(0.8, 1.2)),
+    'Delayed Effect': lambda life_expectancy, impact_score, delay=1: life_expectancy * (1 + (impact_score if delay == 0 else 0))
+}
+
 # Step 3: Setting up Streamlit for Interactive Visualization
 
 # Step 3a: Streamlit App Layout
@@ -50,6 +60,9 @@ st.title("Healthcare Technology Impact on Population and Life Expectancy (USA On
 
 # Technology selection
 selected_techs = st.multiselect('Select Technologies:', technologies)
+
+# Select Impact Type
+selected_impact_type = st.selectbox('Select Impact Type:', list(impact_types.keys()), index=0)
 
 # Filter data for the selected country (USA)
 country_data = life_expect_usa.copy()
@@ -63,7 +76,7 @@ else:
     # Step 3b: Update Life Expectancy Based on Selected Technologies
     # Only apply changes for years after 2021
 
-    def calculate_dynamic_life_expectancy(row, selected_techs):
+    def calculate_dynamic_life_expectancy(row, selected_techs, impact_func):
         dynamic_life_expectancy = row[life_expectancy_column]
         
         if pd.isna(dynamic_life_expectancy):
@@ -72,14 +85,17 @@ else:
         if row['Year'] > 2021:
             for tech in selected_techs:
                 impact_score = tech_impact_scores.get(tech, 0.0)
-                # Adjust life expectancy based on a fixed adoption level of 1 for simplicity
-                dynamic_life_expectancy += impact_score * dynamic_life_expectancy
+                # Apply the selected impact function
+                dynamic_life_expectancy = impact_func(dynamic_life_expectancy, impact_score)
 
         return dynamic_life_expectancy
 
+    # Get the selected impact function
+    impact_func = impact_types[selected_impact_type]
+
     # Calculate the dynamic life expectancy
     country_data['Dynamic_Life_Expectancy'] = country_data.apply(
-        lambda row: calculate_dynamic_life_expectancy(row, selected_techs), axis=1
+        lambda row: calculate_dynamic_life_expectancy(row, selected_techs, impact_func), axis=1
     )
 
     # Drop rows with NaN values in 'Dynamic_Life_Expectancy'
@@ -87,6 +103,7 @@ else:
 
     # Debug Output to Verify Calculations
     st.write("Selected Technologies:", selected_techs)
+    st.write("Selected Impact Type:", selected_impact_type)
     st.write("Sample of Adjusted Life Expectancy Calculations:")
     st.write(country_data[['Year', life_expectancy_column, 'Dynamic_Life_Expectancy']].tail(10))
 
@@ -116,4 +133,4 @@ else:
 
     st.plotly_chart(fig)
 
-    st.write("This graph shows the impact of healthcare technologies on life expectancy over time for the USA. Use the checkboxes to see how different technologies could potentially affect the population health in the future, starting from 2022.")
+    st.write("This graph shows the impact of healthcare technologies on life expectancy over time for the USA. Use the checkboxes to see how different technologies could potentially affect the population health in the future, starting from 2022. You can also select different impact types to visualize different ways technologies might influence life expectancy.")
