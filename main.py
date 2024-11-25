@@ -33,14 +33,14 @@ for tech in technologies:
 
 # Step 2a: Define Impact Scores
 tech_impact_scores = {
-    'CRISPR_Cas9': 0.05,
-    'CAR_T_Therapy': 0.03,
-    'Genetic_Screening': 0.02,
-    'mRNA_Vaccines': 0.04,
-    '3D_Printed_Prosthetics': 0.01,
-    'BCI_Neurorehabilitation': 0.02,
-    'Gene_Therapy_Cystic_Fibrosis': 0.03,
-    'Liquid_Biopsies_Cancer': 0.02
+    'CRISPR_Cas9': 0.10,  # Increased to make impact more visible
+    'CAR_T_Therapy': 0.08,
+    'Genetic_Screening': 0.06,
+    'mRNA_Vaccines': 0.09,
+    '3D_Printed_Prosthetics': 0.05,
+    'BCI_Neurorehabilitation': 0.07,
+    'Gene_Therapy_Cystic_Fibrosis': 0.08,
+    'Liquid_Biopsies_Cancer': 0.06
 }
 
 # Step 3: Setting up Streamlit for Interactive Visualization
@@ -88,6 +88,11 @@ else:
 
     # Drop rows with NaN values in 'Dynamic_Life_Expectancy'
     country_data.dropna(subset=['Dynamic_Life_Expectancy'], inplace=True)
+
+    # Debug Output to Verify Calculations
+    st.write("Selected Technologies:", selected_techs)
+    st.write("Sample of Adjusted Life Expectancy Calculations:")
+    st.write(country_data[['Year', life_expectancy_column, 'Dynamic_Life_Expectancy']].tail(10))
 
     # Step 3c: Plotting Life Expectancy Over Time
     fig = go.Figure()
