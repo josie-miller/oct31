@@ -33,6 +33,7 @@ for tech in technologies:
 # Step 2: Modeling Impact on Population and Life Expectancy
 
 # Step 2a: Define Impact Scores (Based on Research)
+# Impact scores indicate the potential improvement in life expectancy due to each healthcare technology.
 tech_impact_scores = {
     'CRISPR_Cas9': 0.15,  # High impact for curing genetic diseases like Sickle Cell Anemia
     'CAR_T_Therapy': 0.12,  # Significant impact for treating cancer
@@ -45,6 +46,7 @@ tech_impact_scores = {
 }
 
 # Step 2b: Define Different Impact Types
+# Different ways technologies could impact life expectancy over time.
 impact_types = {
     'Incremental': lambda life_expectancy, impact_score: life_expectancy + impact_score * life_expectancy,
     'Exponential': lambda life_expectancy, impact_score: life_expectancy * (1 + impact_score),
@@ -58,10 +60,17 @@ impact_types = {
 # Step 3a: Streamlit App Layout
 st.title("Healthcare Technology Impact on Population and Life Expectancy (USA Only)")
 
+st.write("## Goals of This Analysis")
+st.write("The goal of this application is to demonstrate how different healthcare technologies can influence life expectancy in the USA. We analyze the potential impacts of eight significant advancements in healthcare technologies on population health over time. By selecting different technologies and impact types, you can see how they might change future life expectancy trends.")
+
 # Technology selection
+st.write("### Select Technologies to Analyze")
+st.write("Choose from the list of healthcare advancements to see how each technology might influence the life expectancy of the population.")
 selected_techs = st.multiselect('Select Technologies:', technologies)
 
 # Select Impact Type
+st.write("### Select Impact Type")
+st.write("Choose the type of impact each selected technology will have on life expectancy. Each impact type represents a different scenario of how technology might affect the population over time.")
 selected_impact_type = st.selectbox('Select Impact Type:', list(impact_types.keys()), index=0)
 
 # Filter data for the selected country (USA)
@@ -101,13 +110,9 @@ else:
     # Drop rows with NaN values in 'Dynamic_Life_Expectancy'
     country_data.dropna(subset=['Dynamic_Life_Expectancy'], inplace=True)
 
-    # Debug Output to Verify Calculations
-    st.write("Selected Technologies:", selected_techs)
-    st.write("Selected Impact Type:", selected_impact_type)
-    st.write("Sample of Adjusted Life Expectancy Calculations:")
-    st.write(country_data[['Year', life_expectancy_column, 'Dynamic_Life_Expectancy']].tail(10))
-
     # Step 3c: Plotting Life Expectancy Over Time
+    st.write("### Life Expectancy Over Time")
+    st.write("This graph shows the base life expectancy over time compared to the adjusted life expectancy after applying the effects of selected technologies.")
     fig = go.Figure()
 
     fig.add_trace(go.Scatter(
@@ -133,4 +138,11 @@ else:
 
     st.plotly_chart(fig)
 
-    st.write("This graph shows the impact of healthcare technologies on life expectancy over time for the USA. Use the checkboxes to see how different technologies could potentially affect the population health in the future, starting from 2022. You can also select different impact types to visualize different ways technologies might influence life expectancy.")
+    st.write("### Explanation of Impact Types")
+    st.write("- **Incremental**: A gradual increase in life expectancy proportional to the impact score. This simulates continuous improvements over time.")
+    st.write("- **Exponential**: A multiplicative effect, where life expectancy grows exponentially, representing significant breakthroughs.")
+    st.write("- **Step Increase**: Life expectancy increases in discrete steps, simulating sudden improvements due to technological adoption.")
+    st.write("- **Random Fluctuation**: Introduces randomness, reflecting uncertainty or variability in the impact of technology.")
+    st.write("- **Delayed Effect**: The impact of the technology is delayed, simulating scenarios where benefits take time to materialize.")
+
+    st.write("This tool allows you to explore how healthcare advancements might shape the future health of the population. Use the different settings to visualize and understand the potential impacts.")
