@@ -15,49 +15,46 @@ tech_df = pd.read_csv(tech_file_path)
 avail_df = pd.read_csv(avail_file_path)
 life_expectancy_df = pd.read_csv(life_expectancy_file_path)
 
-# Drop duplicate rows if any exist
-tech_df = tech_df.drop_duplicates()
-avail_df = avail_df.drop_duplicates()
+# Drop duplicate rows
+tech_df.drop_duplicates(inplace=True)
+avail_df.drop_duplicates(inplace=True)
 
-# Rename columns in both datasets to make them consistent
+# Rename columns to make them consistent
 tech_df.rename(columns={'MEDICAL_TECH': 'MEASURE', 'Medical technology': 'MEDICAL_TECH'}, inplace=True)
 avail_df.rename(columns={'Medical technology': 'MEDICAL_TECH'}, inplace=True)
 
-# Merge the datasets on common columns
-merged_df = pd.merge(tech_df, avail_df, on=['REF_AREA', 'Reference area', 'MEASURE', 'MEDICAL_TECH', 'TIME_PERIOD', 'OBS_VALUE'], how='outer')
+# Merge tech and availability datasets on common columns
+merged_df = pd.merge(tech_df, avail_df, on=['REF_AREA', 'MEASURE', 'MEDICAL_TECH', 'TIME_PERIOD', 'OBS_VALUE'], how='outer')
 
-# Normalizing the 'OBS_VALUE' column to a range of 0 to 1
-min_value = merged_df['OBS_VALUE'].min()
-max_value = merged_df['OBS_VALUE'].max()
-merged_df['HTI'] = (merged_df['OBS_VALUE'] - min_value) / (max_value - min_value)
+# Normalize the 'OBS_VALUE' column to a range of 0 to 1
+merged_df['HTI'] = (merged_df['OBS_VALUE'] - merged_df['OBS_VALUE'].min()) / (merged_df['OBS_VALUE'].max() - merged_df['OBS_VALUE'].min())
 
-# Rename columns in the merged HTI dataset for consistency with life expectancy dataset
-merged_df.rename(columns={'REF_AREA': 'Code', 'Reference area': 'Country', 'TIME_PERIOD': 'Year'}, inplace=True)
+# Rename columns for consistency with life expectancy dataset
+merged_df.rename(columns={'REF_AREA': 'Code', 'TIME_PERIOD': 'Year', 'OBS_VALUE': 'Tech_Value'}, inplace=True)
 
-# Merge the HTI dataset with the life expectancy dataset on 'Country', 'Code', and 'Year'
-combined_df = pd.merge(merged_df, life_expectancy_df, on=['Country', 'Code', 'Year'], how='inner')
+# Merge with life expectancy dataset
+combined_df = pd.merge(merged_df, life_expectancy_df, on=['Code', 'Year'], how='inner')
 
 # Step 2: Define Technologies and Their Impact
 technologies = ['CRISPR_Cas9', 'CAR_T_Therapy', 'Genetic_Screening', 'mRNA_Vaccines', '3D_Printed_Prosthetics', 'BCI_Neurorehabilitation', 'Gene_Therapy_Cystic_Fibrosis', 'Liquid_Biopsies_Cancer']
 for tech in technologies:
     combined_df[tech] = 0
 
-# Define a function to assign impact weights based on HTI and healthcare infrastructure
+# Define a function to assign impact weights based on HTI
 def assign_impact_weights(row):
     weights = {}
-    base_weight = 0.05  # Base impact weight for all technologies
+    base_weight = 0.05
     for tech in technologies:
-        weights[tech] = base_weight + (row['HTI'] * 0.3)  # Increase weight based on HTI level
+        weights[tech] = base_weight + (row['HTI'] * 0.3)
     return weights
 
 combined_df['Impact_Weights'] = combined_df.apply(assign_impact_weights, axis=1)
 
 # Step 3: Create Future Projections
-# Define future projection years (e.g., from 2023 to 2033)
 last_year = combined_df['Year'].max()
 future_years = range(last_year + 1, last_year + 11)
 
-# Create a new DataFrame for future projections
+# Create a DataFrame for future projections
 future_rows = []
 for country in combined_df['Country'].unique():
     country_data = combined_df[combined_df['Country'] == country].iloc[-1]
@@ -71,7 +68,7 @@ future_df = pd.DataFrame(future_rows)
 # Step 4: Streamlit Interface for Interactive Technology Adoption
 st.title('Healthcare Technology Impact Analysis')
 
-# Displaying the available technologies and allowing user selection
+# Displaying available technologies for user selection
 st.write("### Select Healthcare Technologies to Adopt in the Future")
 selected_techs = []
 for tech in technologies:
@@ -106,5 +103,3 @@ fig.update_layout(yaxis_title='Life Expectancy (Years)')
 
 # Display the updated graph
 st.plotly_chart(fig)
-
-# Note: The graph shows the historical life expectancy values along with future projections, which are modified based on selected technologies.
