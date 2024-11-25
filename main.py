@@ -7,7 +7,7 @@ import numpy as np
 
 # Load the provided CSV files
 tech_data = pd.read_csv('TECH.csv')
-life_expect_data = pd.read_csv('LIFEEXPECT.csv')
+life_expect_data = pd.read_csv('USA.csv')
 avail_data = pd.read_csv('NEWAVAIL.csv')
 
 # Step 1a: Clean the Data
