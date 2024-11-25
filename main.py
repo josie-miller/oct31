@@ -13,8 +13,6 @@ avail_data = pd.read_csv('AVAIL.csv')
 # Remove any duplicates and handle missing values
 tech_data_clean = tech_data.drop_duplicates().dropna()
 life_expect_clean = life_expect_data.drop_duplicates().dropna(subset=['Country', 'Year']).copy()
-life_expect_clean['Life Expectancy'].fillna(method='ffill', inplace=True)
-life_expect_clean['Life Expectancy Pred'].fillna(method='bfill', inplace=True)
 avail_data_clean = avail_data.drop_duplicates().dropna()
 
 # Step 1b: Rename columns for merging purposes
@@ -75,7 +73,7 @@ country = st.selectbox('Select a Country:', merged_data['Country'].unique())
 selected_techs = st.multiselect('Select Technologies:', technologies)
 
 # Filter data for the selected country
-country_data = merged_data[merged_data['Country'] == country]
+country_data = merged_data[merged_data['Country'] == country].copy()
 
 # Step 3b: Update Life Expectancy Based on Selected Technologies
 def calculate_dynamic_life_expectancy(row, selected_techs):
@@ -93,6 +91,7 @@ for tech in technologies:
     if tech not in country_data.columns:
         country_data[tech] = 0
 
+# Calculate the dynamic life expectancy
 country_data['Dynamic_Life_Expectancy'] = country_data.apply(
     lambda row: calculate_dynamic_life_expectancy(row, selected_techs), axis=1
 )
