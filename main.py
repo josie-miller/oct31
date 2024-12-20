@@ -263,5 +263,5 @@ fig.update_layout(
 )
 
 # Streamlit app
-st.title("Enhanced Circular Periodic Table with Font and Transparency Scaling")
+st.subtitle("Circular Periodic Table Redesign")
 st.plotly_chart(fig, use_container_width=True)
