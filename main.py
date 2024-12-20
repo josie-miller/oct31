@@ -140,7 +140,6 @@ category_colors = {
 
 # Create polar coordinates for each element
 max_groups = 18
-max_periods = 7
 theta = []
 r = []
 hover_text = []
@@ -157,10 +156,8 @@ for element in elements:
     theta.append(2 * np.pi * (group - 1) / max_groups)
     r.append(period)
 
-    # Tooltip with element properties
-    hover_text.append(
-        f"Symbol: {symbol}<br>Atomic Number: {atomic_number}<br>Group: {group}<br>Period: {period}<br>Category: {category}"
-    )
+    # Tooltip with minimal information
+    hover_text.append(f"{symbol} (Atomic No: {atomic_number})")
 
     # Marker color based on category
     marker_colors.append(category_colors[category])
@@ -182,20 +179,7 @@ fig.add_trace(
     )
 )
 
-# Add concentric circles for periods
-for i in range(1, max_periods + 1):
-    fig.add_trace(
-        go.Scatterpolar(
-            r=[i] * 100,
-            theta=np.linspace(0, 360, 100),
-            mode="lines",
-            line=dict(color="gray", dash="dot"),
-            hoverinfo="skip",
-            showlegend=False,
-        )
-    )
-
-# Customize the layout
+# Customize the layout for cleanliness
 fig.update_layout(
     polar=dict(
         angularaxis=dict(
@@ -204,27 +188,27 @@ fig.update_layout(
             ticktext=[str(i) for i in range(1, max_groups + 1)],
             rotation=90,  # Rotate so group 1 starts at the top
             direction="clockwise",
+            showline=False,  # Hide angular grid lines
+            showticklabels=True,  # Keep group labels
         ),
         radialaxis=dict(
-            tickmode="array",
-            tickvals=list(range(1, max_periods + 1)),
-            ticktext=[f"Period {i}" for i in range(1, max_periods + 1)],
+            showline=False,  # Hide radial grid lines
+            showticklabels=False,  # Remove period labels
         ),
     ),
     showlegend=False,
-    title="Interactive Circular Periodic Table",
+    title="Elegant Circular Periodic Table",
     margin=dict(t=60, b=60, l=60, r=60),
 )
 
 # Streamlit app
-st.title("Interactive Circular Periodic Table")
+st.title("Elegant Circular Periodic Table")
 st.plotly_chart(fig, use_container_width=True)
 
 st.write("### How to use:")
 st.markdown(
     """
-- **Hover over elements**: View details like symbol, atomic number, group, period, and category.
-- **Visual representation**: Colors represent different chemical categories.
-- **Circular layout**: Groups are represented angularly, and periods are radial distances.
+- **Hover over elements**: Displays the element's symbol and atomic number.
+- **Color-coded categories**: Each element is represented by its category.
 """
 )
