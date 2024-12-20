@@ -262,6 +262,35 @@ fig.update_layout(
     margin=dict(t=100, b=100, l=100, r=100),  # Larger margins for better layout
 )
 
+# Add category legend
+legend_categories = list(category_colors.keys())
+legend_colors = list(category_colors.values())
+
+# Add legend elements
+for category, color in zip(legend_categories, legend_colors):
+    fig.add_trace(
+        go.Scatterpolar(
+            r=[0],  # Place outside of the graph
+            theta=[0],  # Arbitrary position for legend items
+            mode="markers",
+            marker=dict(size=15, color=color, line=dict(color="black", width=1)),
+            name=category,
+            hoverinfo="none",  # Disable hover for legend
+        )
+    )
+
+# Customize layout for legend
+fig.update_layout(
+    legend=dict(
+        title="Element Categories",
+        orientation="h",
+        yanchor="bottom",
+        y=-0.3,
+        xanchor="center",
+        x=0.5,
+    )
+)
+
 # Streamlit app
 st.write("Circular Periodic Table Redesign")
 st.plotly_chart(fig, use_container_width=True)
