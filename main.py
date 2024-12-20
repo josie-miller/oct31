@@ -123,6 +123,7 @@ elements = [
     {"symbol": "Og", "atomic_number": 118, "group": 18, "period": 7, "category": "Noble Gas"}
 ]
 
+# Define colors for categories
 category_colors = {
     "Nonmetal": "#99ccff",
     "Noble Gas": "#ffcc99",
@@ -136,74 +137,93 @@ category_colors = {
     "Post-Transition Metal": "#cccccc",
 }
 
-st.sidebar.title("Periodic Table Filters")
-selected_category = st.sidebar.selectbox("Select a category:", ["All"] + list(category_colors.keys()))
-selected_group = st.sidebar.slider("Select group:", 1, 18, (1, 18))
-selected_period = st.sidebar.slider("Select period:", 1, 7, (1, 7))
-
-filtered_elements = [
-    e for e in elements
-    if (selected_category == "All" or e["category"] == selected_category)
-    and selected_group[0] <= e["group"] <= selected_group[1]
-    and selected_period[0] <= e["period"] <= selected_period[1]
-]
-
-# Create the circular periodic table plot
+# Create polar coordinates for each element
 max_groups = 18
 max_periods = 7
+theta = []
+r = []
+hover_text = []
+marker_colors = []
 
-fig, ax = plt.subplots(figsize=(14, 14), subplot_kw={'projection': 'polar'})
-ax.set_theta_offset(np.pi / 2)  # Rotate plot to start from the top
-ax.set_theta_direction(-1)  # Clockwise direction
-
-# Plot each element
 for element in elements:
     group = element["group"]
     period = element["period"]
-    symbol = element["symbol"]
     category = element["category"]
-    
-    theta = 2 * np.pi * (group - 1) / max_groups
-    r = period
-    
-    color = category_colors[category]
-    size = 500 if element in filtered_elements else 200
-    ax.scatter(theta, r, s=size, color=color, edgecolor='black', zorder=2)
-    ax.text(theta, r, symbol, ha='center', va='center', fontsize=8, fontweight='bold', color='black')
+    symbol = element["symbol"]
+    atomic_number = element["atomic_number"]
 
-# Draw concentric circles for periods
+    # Calculate angular and radial positions
+    theta.append(2 * np.pi * (group - 1) / max_groups)
+    r.append(period)
+
+    # Tooltip with element properties
+    hover_text.append(
+        f"Symbol: {symbol}<br>Atomic Number: {atomic_number}<br>Group: {group}<br>Period: {period}<br>Category: {category}"
+    )
+
+    # Marker color based on category
+    marker_colors.append(category_colors[category])
+
+# Create the Plotly figure
+fig = go.Figure()
+
+# Add scatterpolar for the elements
+fig.add_trace(
+    go.Scatterpolar(
+        r=r,
+        theta=np.degrees(theta),  # Convert radians to degrees for Plotly
+        mode="markers+text",
+        text=[e["symbol"] for e in elements],  # Display element symbols
+        textposition="middle center",
+        marker=dict(size=14, color=marker_colors, line=dict(color="black", width=1)),
+        hoverinfo="text",
+        hovertext=hover_text,
+    )
+)
+
+# Add concentric circles for periods
 for i in range(1, max_periods + 1):
-    ax.plot(np.linspace(0, 2 * np.pi, 100), [i] * 100, linestyle='--', color='gray', zorder=1)
-
-# Add labels for groups
-for i in range(1, max_groups + 1):
-    theta = 2 * np.pi * (i - 1) / max_groups
-    ax.text(theta, max_periods + 0.5, str(i), ha='center', va='center', fontsize=10, fontweight='bold')
-
-# Remove polar ticks
-ax.set_xticks([])
-ax.set_yticks([])
-
-# Add title
-ax.set_title("Interactive Circular Periodic Table", va='bottom', fontsize=16, fontweight='bold')
-
-# Add legend
-legend_elements = [
-    plt.Line2D([0], [0], marker='o', color='w', label=cat, markersize=10, markerfacecolor=color)
-    for cat, color in category_colors.items()
-]
-ax.legend(handles=legend_elements, loc='upper right', bbox_to_anchor=(1.3, 1.1), title="Categories")
-
-# Display the plot
-st.pyplot(fig)
-
-# Display details of the filtered elements
-st.write("### Filtered Elements")
-if filtered_elements:
-    for element in filtered_elements:
-        st.write(
-            f"**{element['symbol']}**: Atomic Number {element['atomic_number']}, "
-            f"Group {element['group']}, Period {element['period']}, Category {element['category']}"
+    fig.add_trace(
+        go.Scatterpolar(
+            r=[i] * 100,
+            theta=np.linspace(0, 360, 100),
+            mode="lines",
+            line=dict(color="gray", dash="dot"),
+            hoverinfo="skip",
+            showlegend=False,
         )
-else:
-    st.write("No elements match the selected filters.")
+    )
+
+# Customize the layout
+fig.update_layout(
+    polar=dict(
+        angularaxis=dict(
+            tickmode="array",
+            tickvals=np.linspace(0, 360, max_groups, endpoint=False),
+            ticktext=[str(i) for i in range(1, max_groups + 1)],
+            rotation=90,  # Rotate so group 1 starts at the top
+            direction="clockwise",
+        ),
+        radialaxis=dict(
+            tickmode="array",
+            tickvals=list(range(1, max_periods + 1)),
+            ticktext=[f"Period {i}" for i in range(1, max_periods + 1)],
+        ),
+    ),
+    showlegend=False,
+    title="Interactive Circular Periodic Table",
+    margin=dict(t=60, b=60, l=60, r=60),
+)
+
+# Streamlit app
+st.title("Interactive Circular Periodic Table")
+st.plotly_chart(fig, use_container_width=True)
+
+st.write("### How to use:")
+st.markdown(
+    """
+- **Hover over elements**: View details like symbol, atomic number, group, period, and category.
+- **Visual representation**: Colors represent different chemical categories.
+- **Circular layout**: Groups are represented angularly, and periods are radial distances.
+"""
+)
