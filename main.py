@@ -2,7 +2,6 @@ import streamlit as st
 import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 import numpy as np
-
 elements = [
     {"symbol": "H", "atomic_number": 1, "group": 1, "period": 1, "category": "Nonmetal", "atomic_weight": 1.008, "electronegativity": 2.20, "ionization_energy": 13.598},
     {"symbol": "He", "atomic_number": 2, "group": 18, "period": 1, "category": "Noble Gas", "atomic_weight": 4.0026, "electronegativity": None, "ionization_energy": 24.587},
@@ -121,11 +120,8 @@ elements = [
     {"symbol": "Mc", "atomic_number": 115, "group": 15, "period": 7, "category": "Post-Transition Metal", "atomic_weight": 290.0, "electronegativity": None, "ionization_energy": None},
     {"symbol": "Lv", "atomic_number": 116, "group": 16, "period": 7, "category": "Post-Transition Metal", "atomic_weight": 293.0, "electronegativity": None, "ionization_energy": None},
     {"symbol": "Ts", "atomic_number": 117, "group": 17, "period": 7, "category": "Halogen", "atomic_weight": 294.0, "electronegativity": None, "ionization_energy": None},
-    {"symbol": "Og", "atomic_number": 118, "group": 18, "period": 7, "category": "Noble Gas", "atomic_weight": 294.0, "electronegativity": None, "ionization_energy": None}
-            
+    {"symbol": "Og", "atomic_number": 118, "group": 18, "period": 7, "category": "Noble Gas", "atomic_weight": 294.0, "electronegativity": None, "ionization_energy": None}        
     ]
-
-# Define colors for categories
 category_colors = {
     "Nonmetal": "#99ccff",
     "Noble Gas": "#ffcc99",
@@ -141,8 +137,6 @@ category_colors = {
 max_groups = 18
 min_electronegativity = min(e["electronegativity"] for e in elements if e["electronegativity"] is not None)
 max_electronegativity = max(e["electronegativity"] for e in elements if e["electronegativity"] is not None)
-
-# Create polar coordinates
 theta_main = []
 r_main = []
 hover_text_main = []
@@ -159,50 +153,42 @@ marker_size_outer = []
 font_size_outer = []
 opacity_outer = []
 
-# Separate main table elements and lanthanides/actinides
 for element in elements:
-    size = 13 + (element["atomic_weight"] / 20)  # Scale size based on atomic weight
+    size = 13 + (element["atomic_weight"] / 20)
     electronegativity = element["electronegativity"] or (min_electronegativity + 0.5)
     opacity = 0.2 + 0.8 * ((electronegativity - min_electronegativity) / (max_electronegativity - min_electronegativity))
-   # Prepare detailed hover text
     hover_text = (
         f"Symbol: {element['symbol']}<br>"
         f"Atomic Number: {element['atomic_number']}<br>"
         f"Atomic Weight: {element['atomic_weight']}<br>"
         f"Electronegativity: {element['electronegativity'] or 'N/A'}<br>"
-        f"Ionization Energy: {element['ionization_energy'] or 'N/A'} eV<br>"
+        f"1st Ionization Energy: {element['ionization_energy'] or 'N/A'} eV<br>"
         f"Category: {element['category']}<br>"
         f"Group: {element['group'] or 'N/A'}<br>"
         f"Period: {element['period']}"
     )
     if element["category"] in ["Lanthanide", "Actinide"]:
-        # Place lanthanides and actinides in outer rings
         if element["category"] == "Lanthanide":
-            r_outer.append(8)  # Inner outer ring
+            r_outer.append(8) 
         else:
-            r_outer.append(9)  # Outer outer ring
-
+            r_outer.append(9) 
         theta_outer.append(2 * np.pi * (element["atomic_number"] - 57) / 15)
         hover_text_outer.append(hover_text)
         marker_colors_outer.append(category_colors[element["category"]])
         marker_size_outer.append(size)
-        font_size_outer.append(size * 0.5)  # Font scales with size
+        font_size_outer.append(size * 0.5)
         opacity_outer.append(opacity)
     else:
-        # Place main table elements
         theta_main.append(2 * np.pi * (element["group"] - 1) / max_groups)
         r_main.append(element["period"])
         hover_text_main.append(hover_text
         )
         marker_colors_main.append(category_colors[element["category"]])
         marker_size_main.append(size)
-        font_size_main.append(size * 0.5)  # Font scales with size
+        font_size_main.append(size * 0.5) 
         opacity_main.append(opacity)
 
-# Create Plotly figure
 fig = go.Figure()
-
-# Add main table elements
 fig.add_trace(
     go.Scatterpolar(
         r=r_main,
@@ -222,8 +208,6 @@ fig.add_trace(
         showlegend = False,
     )
 )
-
-# Add lanthanides and actinides as outer rings
 fig.add_trace(
     go.Scatterpolar(
         r=r_outer,
@@ -242,25 +226,21 @@ fig.add_trace(
         textfont=dict(size=font_size_outer, color="black"),
         showlegend = False,
     )
-)# Add category legend
+)
 legend_categories = list(category_colors.keys())
 legend_colors = list(category_colors.values())
-
-# Add legend elements (one data point per category for the legend)
 for category, color in zip(legend_categories, legend_colors):
     fig.add_trace(
         go.Scatterpolar(
-            r=[0],  # Place the legend marker outside of the main graph
+            r=[0],
             theta=[0],
             mode="markers",
             marker=dict(size=15, color=color, line=dict(color="black", width=1)),
-            name=category,  # Correctly set the category name for the legend
-            hoverinfo="none",  # Disable hover for legend markers
-            showlegend=True,  # Ensure legend is displayed
+            name=category, 
+            hoverinfo="none",
+            showlegend=True,
         )
     )
-
-# Update layout for legend
 fig.update_layout(
     polar=dict(
         angularaxis=dict(
@@ -278,16 +258,14 @@ fig.update_layout(
     ),
     legend=dict(
         title=dict(text="Element Categories", font=dict(size=12)),
-        orientation="h",  # Horizontal legend
+        orientation="h",
         yanchor="top",
-        y=-0.2,  # Position legend below the chart
+        y=-0.2,
         xanchor="center",
-        x=0.5,  # Center the legend horizontally
+        x=0.5,
     ),
-    showlegend=True,  # Ensure legend is displayed
-    margin=dict(t=100, b=150, l=100, r=100),  # Adjust margin for space
+    showlegend=True,
+    margin=dict(t=100, b=150, l=100, r=100),
     title="Circular Periodic Table Redesign",
 )
-
-# Streamlit app
 st.plotly_chart(fig, use_container_width=True)
