@@ -239,6 +239,7 @@ fig.add_trace(
         hoverinfo="text",
         hovertext=hover_text_outer,
         textfont=dict(size=font_size_outer, color="black"),
+        showlegend = False,
     )
 )# Add category legend
 legend_categories = list(category_colors.keys())
@@ -282,7 +283,7 @@ fig.update_layout(
         xanchor="center",
         x=0.5,  # Center the legend horizontally
     ),
-    showlegend=False,  # Ensure legend is displayed
+    showlegend=True,  # Ensure legend is displayed
     margin=dict(t=100, b=150, l=100, r=100),  # Adjust margin for space
     title="Circular Periodic Table Redesign with Legend",
 )
