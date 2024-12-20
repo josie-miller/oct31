@@ -161,7 +161,7 @@ opacity_outer = []
 
 # Separate main table elements and lanthanides/actinides
 for element in elements:
-    size = 6 + (element["atomic_weight"] / 40)  # Scale size based on atomic weight
+    size = 7 + (element["atomic_weight"] / 40)  # Scale size based on atomic weight
     electronegativity = element["electronegativity"] or min_electronegativity
     opacity = 0.2 + 0.8 * ((electronegativity - min_electronegativity) / (max_electronegativity - min_electronegativity))
 
@@ -178,7 +178,7 @@ for element in elements:
         )
         marker_colors_outer.append(category_colors[element["category"]])
         marker_size_outer.append(size)
-        font_size_outer.append(size * 0.7)  # Font scales with size
+        font_size_outer.append(size * 0.5)  # Font scales with size
         opacity_outer.append(opacity)
     else:
         # Place main table elements
