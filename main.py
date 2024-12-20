@@ -294,8 +294,8 @@ for element in elements:
         f"1st Ionization Energy: {element['ionization_energy'] or 'N/A'} eV<br>"
         f"Category: {element['category']}<br>"
         f"Group: {element['group'] or 'N/A'}<br>"
-        f"Period: {element['period']}<br>"
-        f"Calculated Radius: {element['Calculated Radius'] or 'N/A'} pm"
+        f"Period: {element['period']} <br>"
+        f"Calculated Radius: {element['Calculated Radius'] or 'N/A'} pm<br>"
     )
     if element["category"] in ["Lanthanide", "Actinide"]:
         if element["category"] == "Lanthanide":
