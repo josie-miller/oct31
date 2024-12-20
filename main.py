@@ -144,6 +144,7 @@ theta = []
 r = []
 hover_text = []
 marker_colors = []
+text_colors = []
 
 for element in elements:
     group = element["group"]
@@ -156,11 +157,16 @@ for element in elements:
     theta.append(2 * np.pi * (group - 1) / max_groups)
     r.append(period)
 
-    # Tooltip with minimal information
-    hover_text.append(f"{symbol} (Atomic No: {atomic_number})")
+    # Tooltip with detailed information
+    hover_text.append(
+        f"Symbol: {symbol}<br>Atomic No: {atomic_number}<br>Group: {group}<br>Period: {period}<br>Category: {category}"
+    )
 
     # Marker color based on category
     marker_colors.append(category_colors[category])
+
+    # Text color for symbols (dark for contrast)
+    text_colors.append("black")
 
 # Create the Plotly figure
 fig = go.Figure()
@@ -173,9 +179,10 @@ fig.add_trace(
         mode="markers+text",
         text=[e["symbol"] for e in elements],  # Display element symbols
         textposition="middle center",
-        marker=dict(size=14, color=marker_colors, line=dict(color="black", width=1)),
+        marker=dict(size=20, color=marker_colors, line=dict(color="black", width=1)),
         hoverinfo="text",
         hovertext=hover_text,
+        textfont=dict(size=10, color=text_colors[0]),  # Smaller, darker font
     )
 )
 
@@ -208,7 +215,7 @@ st.plotly_chart(fig, use_container_width=True)
 st.write("### How to use:")
 st.markdown(
     """
-- **Hover over elements**: Displays the element's symbol and atomic number.
-- **Color-coded categories**: Each element is represented by its category.
+- **Hover over elements**: Displays detailed information including symbol, atomic number, group, period, and category.
+- **Color-coded categories**: Easily identify elements by their type.
 """
 )
