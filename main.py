@@ -219,6 +219,7 @@ fig.add_trace(
         hoverinfo="text",
         hovertext=hover_text_main,
         textfont=dict(size=font_size_main, color="black"),
+        showlegend = False,
     )
 )
 
