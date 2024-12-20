@@ -240,8 +240,7 @@ fig.add_trace(
         hovertext=hover_text_outer,
         textfont=dict(size=font_size_outer, color="black"),
     )
-)
-# Add category legend
+)# Add category legend
 legend_categories = list(category_colors.keys())
 legend_colors = list(category_colors.values())
 
@@ -249,11 +248,11 @@ legend_colors = list(category_colors.values())
 for category, color in zip(legend_categories, legend_colors):
     fig.add_trace(
         go.Scatterpolar(
-            r=[0],  # Place outside of the main graph
+            r=[0],  # Place the legend marker outside of the main graph
             theta=[0],
             mode="markers",
             marker=dict(size=15, color=color, line=dict(color="black", width=1)),
-            name=category,  # Name appears in legend
+            name=category,  # Correctly set the category name for the legend
             hoverinfo="none",  # Disable hover for legend markers
             showlegend=True,  # Ensure legend is displayed
         )
@@ -288,7 +287,6 @@ fig.update_layout(
     title="Circular Periodic Table Redesign with Legend",
 )
 
-
 # Streamlit app
-st.write("Circular Periodic Table Redesign")
+st.write("Circular Periodic Table with Category Legend")
 st.plotly_chart(fig, use_container_width=True)
