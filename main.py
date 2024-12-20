@@ -138,8 +138,13 @@ category_colors = {
     "Post-Transition Metal": "#cccccc",
 }
 
-# Create polar coordinates for each element
+# Adjust sizes for better visibility
+marker_size = 15  # Reduced marker size
+font_size = 8  # Smaller font to fit inside the circles
 max_groups = 18
+max_periods = 7
+
+# Create polar coordinates for each element
 theta = []
 r = []
 hover_text = []
@@ -179,10 +184,10 @@ fig.add_trace(
         mode="markers+text",
         text=[e["symbol"] for e in elements],  # Display element symbols
         textposition="middle center",
-        marker=dict(size=20, color=marker_colors, line=dict(color="black", width=1)),
+        marker=dict(size=marker_size, color=marker_colors, line=dict(color="black", width=1)),
         hoverinfo="text",
         hovertext=hover_text,
-        textfont=dict(size=10, color=text_colors[0]),  # Smaller, darker font
+        textfont=dict(size=font_size, color=text_colors[0]),  # Smaller, darker font
     )
 )
 
@@ -211,11 +216,3 @@ fig.update_layout(
 # Streamlit app
 st.title("Elegant Circular Periodic Table")
 st.plotly_chart(fig, use_container_width=True)
-
-st.write("### How to use:")
-st.markdown(
-    """
-- **Hover over elements**: Displays detailed information including symbol, atomic number, group, period, and category.
-- **Color-coded categories**: Easily identify elements by their type.
-"""
-)
