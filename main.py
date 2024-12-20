@@ -123,8 +123,6 @@ elements = [
     {"symbol": "Ts", "atomic_number": 117, "group": 17, "period": 7, "category": "Halogen"},
     {"symbol": "Og", "atomic_number": 118, "group": 18, "period": 7, "category": "Noble Gas"}
 ]
-# Define colors for categories
-
 
 # Define colors for categories
 category_colors = {
@@ -140,44 +138,46 @@ category_colors = {
     "Post-Transition Metal": "#cccccc",
 }
 
-# Adjust sizes and layout
-marker_size = 10  # Reduced size to prevent overlaps
-font_size = 8  # Smaller font for better fit
+# Adjust sizes for better visibility
+marker_size = 15  # Reduced marker size
+font_size = 8  # Smaller font to fit inside the circles
 max_groups = 18
 max_periods = 7
 
-# Calculate positions
+# Create polar coordinates for each element
 theta = []
 r = []
 hover_text = []
 marker_colors = []
+text_colors = []
 
-# Adjust radial positions for Lanthanides and Actinides
-lanthanide_start_radius = 6.5
-actinide_start_radius = 7.5
-lanthanide_spacing = 0.05
-actinide_spacing = 0.05
-
-# Position lanthanides and actinides properly
-for i, element in enumerate(elements):
+for element in elements:
     group = element["group"]
+    period = element["period"]
     category = element["category"]
     symbol = element["symbol"]
     atomic_number = element["atomic_number"]
 
-    if category == "Lanthanide":
-        radial_position = lanthanide_start_radius + i * lanthanide_spacing
-    elif category == "Actinide":
-        radial_position = actinide_start_radius + (i - len([e for e in elements if e["category"] == "Lanthanide"])) * actinide_spacing
+    # Adjusting the position for lanthanides and actinides
+    if period >= 6:
+        r_offset = 0.5  # Add offset to place lanthanides/actinides outside the main grid
     else:
-        radial_position = element["period"]
+        r_offset = 0
 
+    # Calculate angular and radial positions
     theta.append(2 * np.pi * (group - 1) / max_groups)
-    r.append(radial_position)
+    r.append(period + r_offset)
+
+    # Tooltip with detailed information
     hover_text.append(
-        f"Symbol: {symbol}<br>Atomic No: {atomic_number}<br>Group: {group}<br>Category: {category}"
+        f"Symbol: {symbol}<br>Atomic No: {atomic_number}<br>Group: {group}<br>Period: {period}<br>Category: {category}"
     )
+
+    # Marker color based on category
     marker_colors.append(category_colors[category])
+
+    # Text color for symbols (dark for contrast)
+    text_colors.append("black")
 
 # Create the Plotly figure
 fig = go.Figure()
@@ -193,25 +193,32 @@ fig.add_trace(
         marker=dict(size=marker_size, color=marker_colors, line=dict(color="black", width=1)),
         hoverinfo="text",
         hovertext=hover_text,
-        textfont=dict(size=font_size, color="black"),  # Darker font for better contrast
+        textfont=dict(size=font_size, color=text_colors[0]),  # Smaller, darker font
     )
 )
 
-# Customize layout
+# Customize the layout for cleanliness
 fig.update_layout(
     polar=dict(
         angularaxis=dict(
-            showticklabels=False  # Remove group labels for a cleaner look
+            tickmode="array",
+            tickvals=np.linspace(0, 360, max_groups, endpoint=False),
+            ticktext=[str(i) for i in range(1, max_groups + 1)],
+            rotation=90,  # Rotate so group 1 starts at the top
+            direction="clockwise",
+            showline=False,  # Hide angular grid lines
+            showticklabels=True,  # Keep group labels
         ),
         radialaxis=dict(
-            showticklabels=False  # Remove period labels
+            showline=False,  # Hide radial grid lines
+            showticklabels=False,  # Remove period labels
         ),
     ),
     showlegend=False,
-    title="Circular Periodic Table (Improved Layout)",
+    title="Elegant Circular Periodic Table",
     margin=dict(t=60, b=60, l=60, r=60),
 )
 
 # Streamlit app
-st.title("Circular Periodic Table (Lanthanide and Actinide Fixed)")
+st.title("Elegant Circular Periodic Table")
 st.plotly_chart(fig, use_container_width=True)
