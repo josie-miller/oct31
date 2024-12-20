@@ -241,8 +241,25 @@ fig.add_trace(
         textfont=dict(size=font_size_outer, color="black"),
     )
 )
+# Add category legend
+legend_categories = list(category_colors.keys())
+legend_colors = list(category_colors.values())
 
-# Customize layout for larger graph
+# Add legend elements (one data point per category for the legend)
+for category, color in zip(legend_categories, legend_colors):
+    fig.add_trace(
+        go.Scatterpolar(
+            r=[0],  # Place outside of the main graph
+            theta=[0],
+            mode="markers",
+            marker=dict(size=15, color=color, line=dict(color="black", width=1)),
+            name=category,  # Name appears in legend
+            hoverinfo="none",  # Disable hover for legend markers
+            showlegend=True,  # Ensure legend is displayed
+        )
+    )
+
+# Update layout for legend
 fig.update_layout(
     polar=dict(
         angularaxis=dict(
@@ -258,38 +275,19 @@ fig.update_layout(
             showticklabels=False,
         ),
     ),
-    showlegend=False,
-    margin=dict(t=100, b=100, l=100, r=100),  # Larger margins for better layout
-)
-
-# Add category legend
-legend_categories = list(category_colors.keys())
-legend_colors = list(category_colors.values())
-
-# Add legend elements
-for category, color in zip(legend_categories, legend_colors):
-    fig.add_trace(
-        go.Scatterpolar(
-            r=[0],  # Place outside of the graph
-            theta=[0],  # Arbitrary position for legend items
-            mode="markers",
-            marker=dict(size=15, color=color, line=dict(color="black", width=1)),
-            name=category,
-            hoverinfo="none",  # Disable hover for legend
-        )
-    )
-
-# Customize layout for legend
-fig.update_layout(
     legend=dict(
-        title="Element Categories",
-        orientation="h",
-        yanchor="bottom",
-        y=-0.3,
+        title=dict(text="Element Categories", font=dict(size=12)),
+        orientation="h",  # Horizontal legend
+        yanchor="top",
+        y=-0.2,  # Position legend below the chart
         xanchor="center",
-        x=0.5,
-    )
+        x=0.5,  # Center the legend horizontally
+    ),
+    showlegend=True,  # Ensure legend is displayed
+    margin=dict(t=100, b=150, l=100, r=100),  # Adjust margin for space
+    title="Circular Periodic Table Redesign with Legend",
 )
+
 
 # Streamlit app
 st.write("Circular Periodic Table Redesign")
