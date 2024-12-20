@@ -263,5 +263,5 @@ fig.update_layout(
 )
 
 # Streamlit app
-st.subtitle("Circular Periodic Table Redesign")
+st.subtext("Circular Periodic Table Redesign")
 st.plotly_chart(fig, use_container_width=True)
