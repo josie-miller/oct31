@@ -254,7 +254,7 @@ for category, color in zip(legend_categories, legend_colors):
             marker=dict(size=15, color=color, line=dict(color="black", width=1)),
             name=category,  # Correctly set the category name for the legend
             hoverinfo="none",  # Disable hover for legend markers
-            showlegend=False,  # Ensure legend is displayed
+            showlegend=True,  # Ensure legend is displayed
         )
     )
 
@@ -282,7 +282,7 @@ fig.update_layout(
         xanchor="center",
         x=0.5,  # Center the legend horizontally
     ),
-    showlegend=True,  # Ensure legend is displayed
+    showlegend=False,  # Ensure legend is displayed
     margin=dict(t=100, b=150, l=100, r=100),  # Adjust margin for space
     title="Circular Periodic Table Redesign with Legend",
 )
