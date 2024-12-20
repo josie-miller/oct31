@@ -124,7 +124,7 @@ elements = [
     {"symbol": "Og", "atomic_number": 118, "group": 18, "period": 7, "category": "Noble Gas"}
 ]
 
-# Define colors for categories
+# Adjust category colors
 category_colors = {
     "Nonmetal": "#99ccff",
     "Noble Gas": "#ffcc99",
@@ -138,18 +138,21 @@ category_colors = {
     "Post-Transition Metal": "#cccccc",
 }
 
-# Adjust sizes for better visibility
-marker_size = 15  # Reduced marker size
-font_size = 8  # Smaller font to fit inside the circles
+marker_size = 15  # Marker size
+font_size = 8  # Font size for element symbols
 max_groups = 18
 max_periods = 7
 
-# Create polar coordinates for each element
+# Create polar coordinates for each element, separate lanthanides and actinides
 theta = []
 r = []
 hover_text = []
 marker_colors = []
 text_colors = []
+
+# Positioning for lanthanides and actinides
+lanthanide_r = 8  # Outer radius for lanthanides
+actinide_r = 9  # Outer radius for actinides
 
 for element in elements:
     group = element["group"]
@@ -158,15 +161,17 @@ for element in elements:
     symbol = element["symbol"]
     atomic_number = element["atomic_number"]
 
-    # Adjusting the position for lanthanides and actinides
-    if period >= 6:
-        r_offset = 0.5  # Add offset to place lanthanides/actinides outside the main grid
+    # If element is lanthanide or actinide, place them outside the main grid
+    if category == "Lanthanide":
+        theta.append(2 * np.pi * (atomic_number - 57) / 15)  # 15 lanthanides, evenly spaced
+        r.append(lanthanide_r)
+    elif category == "Actinide":
+        theta.append(2 * np.pi * (atomic_number - 89) / 15)  # 15 actinides, evenly spaced
+        r.append(actinide_r)
     else:
-        r_offset = 0
-
-    # Calculate angular and radial positions
-    theta.append(2 * np.pi * (group - 1) / max_groups)
-    r.append(period + r_offset)
+        # Regular elements, place them as normal
+        theta.append(2 * np.pi * (group - 1) / max_groups)
+        r.append(period)
 
     # Tooltip with detailed information
     hover_text.append(
