@@ -137,6 +137,11 @@ category_colors = {
     "Actinide": "#663399",
     "Post-Transition Metal": "#cccccc",
 }
+# Adjust sizes for better visibility
+marker_size = 15  # Match original size
+font_size = 8  # Match original size
+max_groups = 18
+max_periods = 7
 
 # Create polar coordinates
 theta_main = []
@@ -148,8 +153,6 @@ theta_outer = []
 r_outer = []
 hover_text_outer = []
 marker_colors_outer = []
-
-max_groups = 18
 
 # Separate main table elements and lanthanides/actinides
 for element in elements:
@@ -183,9 +186,10 @@ fig.add_trace(
         mode="markers+text",
         text=[e["symbol"] for e in elements if e["category"] not in ["Lanthanide", "Actinide"]],
         textposition="middle center",
-        marker=dict(size=12, color=marker_colors_main, line=dict(color="black", width=1)),
+        marker=dict(size=marker_size, color=marker_colors_main, line=dict(color="black", width=1)),
         hoverinfo="text",
         hovertext=hover_text_main,
+        textfont=dict(size=font_size, color="black"),
     )
 )
 
@@ -197,9 +201,10 @@ fig.add_trace(
         mode="markers+text",
         text=[e["symbol"] for e in elements if e["category"] in ["Lanthanide", "Actinide"]],
         textposition="middle center",
-        marker=dict(size=10, color=marker_colors_outer, line=dict(color="black", width=1)),
+        marker=dict(size=marker_size, color=marker_colors_outer, line=dict(color="black", width=1)),
         hoverinfo="text",
         hovertext=hover_text_outer,
+        textfont=dict(size=font_size, color="black"),
     )
 )
 
@@ -220,7 +225,7 @@ fig.update_layout(
         ),
     ),
     showlegend=False,
-    title="Circular Periodic Table with Outer Rings for Lanthanides and Actinides",
+    title="Circular Periodic Table with Lanthanides and Actinides",
     margin=dict(t=50, b=50, l=50, r=50),
 )
 
