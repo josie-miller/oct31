@@ -138,10 +138,9 @@ category_colors = {
     "Actinide": "#663399",
     "Post-Transition Metal": "#cccccc",
 }
-
-# Adjust sizes and ranges
-font_size = 8
 max_groups = 18
+min_electronegativity = min(e["electronegativity"] for e in elements if e["electronegativity"] is not None)
+max_electronegativity = max(e["electronegativity"] for e in elements if e["electronegativity"] is not None)
 
 # Create polar coordinates
 theta_main = []
@@ -149,16 +148,23 @@ r_main = []
 hover_text_main = []
 marker_colors_main = []
 marker_size_main = []
+font_size_main = []
+opacity_main = []
 
 theta_outer = []
 r_outer = []
 hover_text_outer = []
 marker_colors_outer = []
 marker_size_outer = []
+font_size_outer = []
+opacity_outer = []
 
 # Separate main table elements and lanthanides/actinides
 for element in elements:
     size = 5 + (element["atomic_weight"] / 50)  # Scale size based on atomic weight
+    electronegativity = element["electronegativity"] or min_electronegativity
+    opacity = 0.6 + 0.4 * ((electronegativity - min_electronegativity) / (max_electronegativity - min_electronegativity))
+
     if element["category"] in ["Lanthanide", "Actinide"]:
         # Place lanthanides and actinides in outer rings
         if element["category"] == "Lanthanide":
@@ -168,19 +174,23 @@ for element in elements:
 
         theta_outer.append(2 * np.pi * (element["atomic_number"] - 57) / 15)
         hover_text_outer.append(
-            f"{element['symbol']}<br>Atomic No: {element['atomic_number']}<br>Atomic Weight: {element['atomic_weight']}"
+            f"{element['symbol']}<br>Atomic No: {element['atomic_number']}<br>Atomic Weight: {element['atomic_weight']}<br>Electronegativity: {element['electronegativity'] or 'N/A'}"
         )
         marker_colors_outer.append(category_colors[element["category"]])
         marker_size_outer.append(size)
+        font_size_outer.append(size * 1.2)  # Font scales with size
+        opacity_outer.append(opacity)
     else:
         # Place main table elements
         theta_main.append(2 * np.pi * (element["group"] - 1) / max_groups)
         r_main.append(element["period"])
         hover_text_main.append(
-            f"{element['symbol']}<br>Atomic No: {element['atomic_number']}<br>Atomic Weight: {element['atomic_weight']}"
+            f"{element['symbol']}<br>Atomic No: {element['atomic_number']}<br>Atomic Weight: {element['atomic_weight']}<br>Electronegativity: {element['electronegativity'] or 'N/A'}"
         )
         marker_colors_main.append(category_colors[element["category"]])
         marker_size_main.append(size)
+        font_size_main.append(size * 1.2)  # Font scales with size
+        opacity_main.append(opacity)
 
 # Create Plotly figure
 fig = go.Figure()
@@ -194,13 +204,14 @@ fig.add_trace(
         text=[e["symbol"] for e in elements if e["category"] not in ["Lanthanide", "Actinide"]],
         textposition="middle center",
         marker=dict(
-            size=marker_size_main, 
-            color=marker_colors_main, 
-            line=dict(color="black", width=1)
+            size=marker_size_main,
+            color=marker_colors_main,
+            opacity=opacity_main,
+            line=dict(color="black", width=1),
         ),
         hoverinfo="text",
         hovertext=hover_text_main,
-        textfont=dict(size=font_size, color="black"),
+        textfont=dict(size=font_size_main, color="black"),
     )
 )
 
@@ -213,13 +224,14 @@ fig.add_trace(
         text=[e["symbol"] for e in elements if e["category"] in ["Lanthanide", "Actinide"]],
         textposition="middle center",
         marker=dict(
-            size=marker_size_outer, 
-            color=marker_colors_outer, 
-            line=dict(color="black", width=1)
+            size=marker_size_outer,
+            color=marker_colors_outer,
+            opacity=opacity_outer,
+            line=dict(color="black", width=1),
         ),
         hoverinfo="text",
         hovertext=hover_text_outer,
-        textfont=dict(size=font_size, color="black"),
+        textfont=dict(size=font_size_outer, color="black"),
     )
 )
 
@@ -240,10 +252,10 @@ fig.update_layout(
         ),
     ),
     showlegend=False,
-    title="Circular Periodic Table with Atomic Weight Scaling",
+    title="Circular Periodic Table with Scaled Font and Transparency",
     margin=dict(t=100, b=100, l=100, r=100),  # Larger margins for better layout
 )
 
 # Streamlit app
-st.title("Enhanced Circular Periodic Table with Atomic Weight Scaling")
+st.title("Enhanced Circular Periodic Table with Font and Transparency Scaling")
 st.plotly_chart(fig, use_container_width=True)
