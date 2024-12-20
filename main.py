@@ -162,7 +162,7 @@ opacity_outer = []
 # Separate main table elements and lanthanides/actinides
 for element in elements:
     size = 7 + (element["atomic_weight"] / 40)  # Scale size based on atomic weight
-    electronegativity = element["electronegativity"] or min_electronegativity
+    electronegativity = element["electronegativity"] or (min_electronegativity + 0.5)
     opacity = 0.2 + 0.8 * ((electronegativity - min_electronegativity) / (max_electronegativity - min_electronegativity))
 
     if element["category"] in ["Lanthanide", "Actinide"]:
