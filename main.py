@@ -164,7 +164,17 @@ for element in elements:
     size = 7 + (element["atomic_weight"] / 40)  # Scale size based on atomic weight
     electronegativity = element["electronegativity"] or (min_electronegativity + 0.5)
     opacity = 0.2 + 0.8 * ((electronegativity - min_electronegativity) / (max_electronegativity - min_electronegativity))
-
+   # Prepare detailed hover text
+    hover_text = (
+        f"Symbol: {element['symbol']}<br>"
+        f"Atomic Number: {element['atomic_number']}<br>"
+        f"Atomic Weight: {element['atomic_weight']}<br>"
+        f"Electronegativity: {element['electronegativity'] or 'N/A'}<br>"
+        f"Ionization Energy: {element['ionization_energy'] or 'N/A'} eV<br>"
+        f"Category: {element['category']}<br>"
+        f"Group: {element['group'] or 'N/A'}<br>"
+        f"Period: {element['period']}"
+    )
     if element["category"] in ["Lanthanide", "Actinide"]:
         # Place lanthanides and actinides in outer rings
         if element["category"] == "Lanthanide":
@@ -173,9 +183,7 @@ for element in elements:
             r_outer.append(9)  # Outer outer ring
 
         theta_outer.append(2 * np.pi * (element["atomic_number"] - 57) / 15)
-        hover_text_outer.append(
-            f"{element['symbol']}<br>Atomic No: {element['atomic_number']}<br>Atomic Weight: {element['atomic_weight']}<br>Electronegativity: {element['electronegativity'] or 'N/A'}"
-        )
+        hover_text_outer.append(hover_text)
         marker_colors_outer.append(category_colors[element["category"]])
         marker_size_outer.append(size)
         font_size_outer.append(size * 0.5)  # Font scales with size
@@ -184,8 +192,7 @@ for element in elements:
         # Place main table elements
         theta_main.append(2 * np.pi * (element["group"] - 1) / max_groups)
         r_main.append(element["period"])
-        hover_text_main.append(
-            f"{element['symbol']}<br>Atomic No: {element['atomic_number']}<br>Atomic Weight: {element['atomic_weight']}<br>Electronegativity: {element['electronegativity'] or 'N/A'}"
+        hover_text_main.append(hover_text
         )
         marker_colors_main.append(category_colors[element["category"]])
         marker_size_main.append(size)
