@@ -286,9 +286,8 @@ fig.update_layout(
     ),
     showlegend=True,  # Ensure legend is displayed
     margin=dict(t=100, b=150, l=100, r=100),  # Adjust margin for space
-    title="Circular Periodic Table Redesign with Legend",
+    title="Circular Periodic Table Redesign",
 )
 
 # Streamlit app
-st.write("Circular Periodic Table with Category Legend")
 st.plotly_chart(fig, use_container_width=True)
