@@ -161,7 +161,7 @@ opacity_outer = []
 
 # Separate main table elements and lanthanides/actinides
 for element in elements:
-    size = 13 + (element["atomic_weight"] / 30)  # Scale size based on atomic weight
+    size = 13 + (element["atomic_weight"] / 20)  # Scale size based on atomic weight
     electronegativity = element["electronegativity"] or (min_electronegativity + 0.5)
     opacity = 0.2 + 0.8 * ((electronegativity - min_electronegativity) / (max_electronegativity - min_electronegativity))
    # Prepare detailed hover text
