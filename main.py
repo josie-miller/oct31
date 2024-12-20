@@ -189,7 +189,7 @@ for element in elements:
         )
         marker_colors_main.append(category_colors[element["category"]])
         marker_size_main.append(size)
-        font_size_main.append(size * 1.2)  # Font scales with size
+        font_size_main.append(size * 0.5)  # Font scales with size
         opacity_main.append(opacity)
 
 # Create Plotly figure
