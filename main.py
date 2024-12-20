@@ -124,6 +124,9 @@ elements = [
     {"symbol": "Og", "atomic_number": 118, "group": 18, "period": 7, "category": "Noble Gas"}
 ]
 # Define colors for categories
+
+
+# Define colors for categories
 category_colors = {
     "Nonmetal": "#99ccff",
     "Noble Gas": "#ffcc99",
@@ -208,3 +211,7 @@ fig.update_layout(
     title="Circular Periodic Table (Improved Layout)",
     margin=dict(t=60, b=60, l=60, r=60),
 )
+
+# Streamlit app
+st.title("Circular Periodic Table (Lanthanide and Actinide Fixed)")
+st.plotly_chart(fig, use_container_width=True)
