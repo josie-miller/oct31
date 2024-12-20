@@ -259,7 +259,7 @@ fig.update_layout(
         ),
     ),
     showlegend=False,
-    title="Circular Periodic Table with Scaled Font and Transparency",
+    title=False,
     margin=dict(t=100, b=100, l=100, r=100),  # Larger margins for better layout
 )
 
