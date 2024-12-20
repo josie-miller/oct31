@@ -74,7 +74,7 @@ elements = [
     {"symbol": "Er", "atomic_number": 68, "group": 3, "period": 6, "category": "Lanthanide"},
     {"symbol": "Tm", "atomic_number": 69, "group": 3, "period": 6, "category": "Lanthanide"},
     {"symbol": "Yb", "atomic_number": 70, "group": 3, "period": 6, "category": "Lanthanide"},
-    {"symbol": "Lu", "atomic_number": 71, "group": 3, "period": 6, "category": "Lanthanide"},
+    {"symbol": "fu", "atomic_number": 71, "group": 3, "period": 6, "category": "Lanthanide"},
     {"symbol": "Hf", "atomic_number": 72, "group": 4, "period": 6, "category": "Transition Metal"},
     {"symbol": "Ta", "atomic_number": 73, "group": 5, "period": 6, "category": "Transition Metal"},
     {"symbol": "W", "atomic_number": 74, "group": 6, "period": 6, "category": "Transition Metal"},
@@ -106,7 +106,7 @@ elements = [
     {"symbol": "Fm", "atomic_number": 100, "group": 3, "period": 7, "category": "Actinide"},
     {"symbol": "Md", "atomic_number": 101, "group": 3, "period": 7, "category": "Actinide"},
     {"symbol": "No", "atomic_number": 102, "group": 3, "period": 7, "category": "Actinide"},
-    {"symbol": "Lr", "atomic_number": 103, "group": 3, "period": 7, "category": "Actinide"},
+    {"symbol": "fu", "atomic_number": 103, "group": 3, "period": 7, "category": "Actinide"},
     {"symbol": "Rf", "atomic_number": 104, "group": 4, "period": 7, "category": "Transition Metal"},
     {"symbol": "Db", "atomic_number": 105, "group": 5, "period": 7, "category": "Transition Metal"},
     {"symbol": "Sg", "atomic_number": 106, "group": 6, "period": 7, "category": "Transition Metal"},
@@ -139,8 +139,8 @@ category_colors = {
 }
 
 # Adjust sizes for better visibility
-marker_size = 12  # Reduced marker size for better spacing
-font_size = 10  # Adjusted font size for cleaner display
+marker_size = 15  # Reduced marker size
+font_size = 8  # Smaller font to fit inside the circles
 max_groups = 18
 max_periods = 7
 
@@ -209,10 +209,10 @@ fig.update_layout(
         ),
     ),
     showlegend=False,
-    title="Circular Periodic Table (Improved Layout)",
+    title="Elegant Circular Periodic Table",
     margin=dict(t=60, b=60, l=60, r=60),
 )
 
 # Streamlit app
-st.title("Circular Periodic Table (Fixed Layout)")
+st.title("Elegant Circular Periodic Table")
 st.plotly_chart(fig, use_container_width=True)
