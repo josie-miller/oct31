@@ -138,25 +138,27 @@ category_colors = {
     "Actinide": "#663399",
     "Post-Transition Metal": "#cccccc",
 }
-# Adjust sizes for better visibility
-marker_size = 15  # Match original size
-font_size = 8  # Match original size
+
+# Adjust sizes and ranges
+font_size = 8
 max_groups = 18
-max_periods = 7
 
 # Create polar coordinates
 theta_main = []
 r_main = []
 hover_text_main = []
 marker_colors_main = []
+marker_size_main = []
 
 theta_outer = []
 r_outer = []
 hover_text_outer = []
 marker_colors_outer = []
+marker_size_outer = []
 
 # Separate main table elements and lanthanides/actinides
 for element in elements:
+    size = 5 + (element["atomic_weight"] / 50)  # Scale size based on atomic weight
     if element["category"] in ["Lanthanide", "Actinide"]:
         # Place lanthanides and actinides in outer rings
         if element["category"] == "Lanthanide":
@@ -165,16 +167,20 @@ for element in elements:
             r_outer.append(9)  # Outer outer ring
 
         theta_outer.append(2 * np.pi * (element["atomic_number"] - 57) / 15)
-        hover_text_outer.append(f"{element['symbol']} (Atomic No: {element['atomic_number']})")
+        hover_text_outer.append(
+            f"{element['symbol']}<br>Atomic No: {element['atomic_number']}<br>Atomic Weight: {element['atomic_weight']}"
+        )
         marker_colors_outer.append(category_colors[element["category"]])
+        marker_size_outer.append(size)
     else:
         # Place main table elements
         theta_main.append(2 * np.pi * (element["group"] - 1) / max_groups)
         r_main.append(element["period"])
         hover_text_main.append(
-            f"{element['symbol']} (Atomic No: {element['atomic_number']})"
+            f"{element['symbol']}<br>Atomic No: {element['atomic_number']}<br>Atomic Weight: {element['atomic_weight']}"
         )
         marker_colors_main.append(category_colors[element["category"]])
+        marker_size_main.append(size)
 
 # Create Plotly figure
 fig = go.Figure()
@@ -187,7 +193,11 @@ fig.add_trace(
         mode="markers+text",
         text=[e["symbol"] for e in elements if e["category"] not in ["Lanthanide", "Actinide"]],
         textposition="middle center",
-        marker=dict(size=marker_size, color=marker_colors_main, line=dict(color="black", width=1)),
+        marker=dict(
+            size=marker_size_main, 
+            color=marker_colors_main, 
+            line=dict(color="black", width=1)
+        ),
         hoverinfo="text",
         hovertext=hover_text_main,
         textfont=dict(size=font_size, color="black"),
@@ -202,14 +212,18 @@ fig.add_trace(
         mode="markers+text",
         text=[e["symbol"] for e in elements if e["category"] in ["Lanthanide", "Actinide"]],
         textposition="middle center",
-        marker=dict(size=marker_size, color=marker_colors_outer, line=dict(color="black", width=1)),
+        marker=dict(
+            size=marker_size_outer, 
+            color=marker_colors_outer, 
+            line=dict(color="black", width=1)
+        ),
         hoverinfo="text",
         hovertext=hover_text_outer,
         textfont=dict(size=font_size, color="black"),
     )
 )
 
-# Customize layout
+# Customize layout for larger graph
 fig.update_layout(
     polar=dict(
         angularaxis=dict(
@@ -226,10 +240,10 @@ fig.update_layout(
         ),
     ),
     showlegend=False,
-    title="Circular Periodic Table with Lanthanides and Actinides",
-    margin=dict(t=50, b=50, l=50, r=50),
+    title="Circular Periodic Table with Atomic Weight Scaling",
+    margin=dict(t=100, b=100, l=100, r=100),  # Larger margins for better layout
 )
 
 # Streamlit app
-st.title("Circular Periodic Table with Lanthanides and Actinides")
+st.title("Enhanced Circular Periodic Table with Atomic Weight Scaling")
 st.plotly_chart(fig, use_container_width=True)
