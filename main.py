@@ -139,8 +139,8 @@ category_colors = {
 }
 
 # Adjust sizes for better visibility
-marker_size = 15  # Reduced marker size
-font_size = 8  # Smaller font to fit inside the circles
+marker_size = 12  # Reduced marker size for better spacing
+font_size = 10  # Adjusted font size for cleaner display
 max_groups = 18
 max_periods = 7
 
@@ -209,10 +209,10 @@ fig.update_layout(
         ),
     ),
     showlegend=False,
-    title="Elegant Circular Periodic Table",
+    title="Circular Periodic Table (Improved Layout)",
     margin=dict(t=60, b=60, l=60, r=60),
 )
 
 # Streamlit app
-st.title("Elegant Circular Periodic Table")
+st.title("Circular Periodic Table (Fixed Layout)")
 st.plotly_chart(fig, use_container_width=True)
