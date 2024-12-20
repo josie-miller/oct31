@@ -254,7 +254,7 @@ for category, color in zip(legend_categories, legend_colors):
             marker=dict(size=15, color=color, line=dict(color="black", width=1)),
             name=category,  # Correctly set the category name for the legend
             hoverinfo="none",  # Disable hover for legend markers
-            showlegend=True,  # Ensure legend is displayed
+            showlegend=False,  # Ensure legend is displayed
         )
     )
 
