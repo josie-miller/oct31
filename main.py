@@ -123,8 +123,6 @@ elements = [
     {"symbol": "Ts", "atomic_number": 117, "group": 17, "period": 7, "category": "Halogen"},
     {"symbol": "Og", "atomic_number": 118, "group": 18, "period": 7, "category": "Noble Gas"}
 ]
-
-# Adjust category colors
 category_colors = {
     "Nonmetal": "#99ccff",
     "Noble Gas": "#ffcc99",
@@ -138,21 +136,22 @@ category_colors = {
     "Post-Transition Metal": "#cccccc",
 }
 
-marker_size = 15  # Marker size
-font_size = 8  # Font size for element symbols
+# Adjust sizes for better visibility
+marker_size = 15  # Reduced marker size
+font_size = 8  # Smaller font to fit inside the circles
 max_groups = 18
 max_periods = 7
 
-# Create polar coordinates for each element, separate lanthanides and actinides
+# Create polar coordinates for each element
 theta = []
 r = []
 hover_text = []
 marker_colors = []
 text_colors = []
 
-# Positioning for lanthanides and actinides
-lanthanide_r = 8  # Outer radius for lanthanides
-actinide_r = 9  # Outer radius for actinides
+# Create two lists for lanthanides and actinides
+lanthanides = []
+actinides = []
 
 for element in elements:
     group = element["group"]
@@ -161,15 +160,21 @@ for element in elements:
     symbol = element["symbol"]
     atomic_number = element["atomic_number"]
 
-    # If element is lanthanide or actinide, place them outside the main grid
-    if category == "Lanthanide":
-        theta.append(2 * np.pi * (atomic_number - 57) / 15)  # 15 lanthanides, evenly spaced
-        r.append(lanthanide_r)
-    elif category == "Actinide":
-        theta.append(2 * np.pi * (atomic_number - 89) / 15)  # 15 actinides, evenly spaced
-        r.append(actinide_r)
+    # Handle lanthanides and actinides separately
+    if category == "Lanthanide" or category == "Actinide":
+        # Assign fixed positions outside the main table for lanthanides and actinides
+        if category == "Lanthanide":
+            # Position lanthanides at the top or bottom
+            r.append(8)  # Set radial distance (make it farther from center)
+            theta.append(np.degrees(2 * np.pi * (len(lanthanides) / 15)))  # Evenly spaced around the circle
+            lanthanides.append(element)
+        else:
+            # Position actinides below the main table
+            r.append(9)  # Set radial distance (make it farther from center)
+            theta.append(np.degrees(2 * np.pi * (len(actinides) / 15)))  # Evenly spaced around the circle
+            actinides.append(element)
     else:
-        # Regular elements, place them as normal
+        # Regular elements stay inside the periodic table
         theta.append(2 * np.pi * (group - 1) / max_groups)
         r.append(period)
 
@@ -202,6 +207,37 @@ fig.add_trace(
     )
 )
 
+# Separate scatter for lanthanides and actinides to make sure they appear outside
+if lanthanides:
+    fig.add_trace(
+        go.Scatterpolar(
+            r=[e["period"] for e in lanthanides],
+            theta=np.degrees([2 * np.pi * (i / len(lanthanides)) for i in range(len(lanthanides))]),
+            mode="markers+text",
+            text=[e["symbol"] for e in lanthanides],
+            textposition="middle center",
+            marker=dict(size=marker_size, color=[category_colors[e["category"]] for e in lanthanides], line=dict(color="black", width=1)),
+            hoverinfo="text",
+            hovertext=[f"Symbol: {e['symbol']}<br>Atomic No: {e['atomic_number']}<br>Category: {e['category']}" for e in lanthanides],
+            textfont=dict(size=font_size, color="black"),
+        )
+    )
+
+if actinides:
+    fig.add_trace(
+        go.Scatterpolar(
+            r=[e["period"] for e in actinides],
+            theta=np.degrees([2 * np.pi * (i / len(actinides)) for i in range(len(actinides))]),
+            mode="markers+text",
+            text=[e["symbol"] for e in actinides],
+            textposition="middle center",
+            marker=dict(size=marker_size, color=[category_colors[e["category"]] for e in actinides], line=dict(color="black", width=1)),
+            hoverinfo="text",
+            hovertext=[f"Symbol: {e['symbol']}<br>Atomic No: {e['atomic_number']}<br>Category: {e['category']}" for e in actinides],
+            textfont=dict(size=font_size, color="black"),
+        )
+    )
+
 # Customize the layout for cleanliness
 fig.update_layout(
     polar=dict(
@@ -220,7 +256,7 @@ fig.update_layout(
         ),
     ),
     showlegend=False,
-    title="Elegant Circular Periodic Table",
+    title="Elegant Circular Periodic Table with Lanthanides and Actinides",
     margin=dict(t=60, b=60, l=60, r=60),
 )
 
