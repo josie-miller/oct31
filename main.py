@@ -55,8 +55,6 @@ W_lattice = generate_bcc_lattice(a_W, n_cells)
 atom_colors = {'C': 'black', 'O': 'red', 'H': 'gray', 'Ca': 'blue', 'F': 'green', 'W': 'gold'}
 
 # Streamlit App
-st.title("3D Visualizations of Molecular and Lattice Structures")
-
 def plot_structure(points, types, title):
     fig = go.Figure()
     for atom, color in atom_colors.items():
